@@ -1,0 +1,17 @@
+C:\Users\yan.silva\Desktop\projeto-faculdade\baa-logistica-backend\BAALogistica.Infrastructure\bin\Debug\net8.0\BAALogistica.Infrastructure.deps.json
+C:\Users\yan.silva\Desktop\projeto-faculdade\baa-logistica-backend\BAALogistica.Infrastructure\bin\Debug\net8.0\BAALogistica.Infrastructure.runtimeconfig.json
+C:\Users\yan.silva\Desktop\projeto-faculdade\baa-logistica-backend\BAALogistica.Infrastructure\bin\Debug\net8.0\BAALogistica.Infrastructure.dll
+C:\Users\yan.silva\Desktop\projeto-faculdade\baa-logistica-backend\BAALogistica.Infrastructure\bin\Debug\net8.0\BAALogistica.Infrastructure.pdb
+C:\Users\yan.silva\Desktop\projeto-faculdade\baa-logistica-backend\BAALogistica.Infrastructure\bin\Debug\net8.0\BAALogistica.Domain.dll
+C:\Users\yan.silva\Desktop\projeto-faculdade\baa-logistica-backend\BAALogistica.Infrastructure\bin\Debug\net8.0\BAALogistica.Domain.pdb
+C:\Users\yan.silva\Desktop\projeto-faculdade\baa-logistica-backend\BAALogistica.Infrastructure\obj\Debug\net8.0\BAALogistica.Infrastructure.csproj.AssemblyReference.cache
+C:\Users\yan.silva\Desktop\projeto-faculdade\baa-logistica-backend\BAALogistica.Infrastructure\obj\Debug\net8.0\BAALogistica.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\yan.silva\Desktop\projeto-faculdade\baa-logistica-backend\BAALogistica.Infrastructure\obj\Debug\net8.0\BAALogistica.Infrastructure.AssemblyInfoInputs.cache
+C:\Users\yan.silva\Desktop\projeto-faculdade\baa-logistica-backend\BAALogistica.Infrastructure\obj\Debug\net8.0\BAALogistica.Infrastructure.AssemblyInfo.cs
+C:\Users\yan.silva\Desktop\projeto-faculdade\baa-logistica-backend\BAALogistica.Infrastructure\obj\Debug\net8.0\BAALogistica.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Users\yan.silva\Desktop\projeto-faculdade\baa-logistica-backend\BAALogistica.Infrastructure\obj\Debug\net8.0\BAALogis.BBC6E8BA.Up2Date
+C:\Users\yan.silva\Desktop\projeto-faculdade\baa-logistica-backend\BAALogistica.Infrastructure\obj\Debug\net8.0\BAALogistica.Infrastructure.dll
+C:\Users\yan.silva\Desktop\projeto-faculdade\baa-logistica-backend\BAALogistica.Infrastructure\obj\Debug\net8.0\refint\BAALogistica.Infrastructure.dll
+C:\Users\yan.silva\Desktop\projeto-faculdade\baa-logistica-backend\BAALogistica.Infrastructure\obj\Debug\net8.0\BAALogistica.Infrastructure.pdb
+C:\Users\yan.silva\Desktop\projeto-faculdade\baa-logistica-backend\BAALogistica.Infrastructure\obj\Debug\net8.0\BAALogistica.Infrastructure.genruntimeconfig.cache
+C:\Users\yan.silva\Desktop\projeto-faculdade\baa-logistica-backend\BAALogistica.Infrastructure\obj\Debug\net8.0\ref\BAALogistica.Infrastructure.dll
