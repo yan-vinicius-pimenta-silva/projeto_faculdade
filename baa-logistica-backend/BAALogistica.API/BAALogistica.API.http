@@ -1,4 +1,4 @@
-@BAALogistica.API_HostAddress = http://localhost:5188
+@BAALogistica.API_HostAddress = http://localhost:5165
 
 GET {{BAALogistica.API_HostAddress}}/weatherforecast/
 Accept: application/json

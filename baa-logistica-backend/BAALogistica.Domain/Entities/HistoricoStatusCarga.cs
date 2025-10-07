@@ -1,3 +1,6 @@
+// ============================================
+// BAALogistica.Domain/Entities/HistoricoStatusCarga.cs
+// ============================================
 namespace BAALogistica.Domain.Entities;
 
 public class HistoricoStatusCarga

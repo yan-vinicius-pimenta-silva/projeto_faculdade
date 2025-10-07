@@ -1,3 +1,6 @@
+// ============================================
+// BAALogistica.Domain/Entities/Carga.cs
+// ============================================
 namespace BAALogistica.Domain.Entities;
 
 public class Carga

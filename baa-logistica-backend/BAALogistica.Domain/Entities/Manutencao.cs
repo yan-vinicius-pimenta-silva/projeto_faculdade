@@ -1,3 +1,6 @@
+// ============================================
+// BAALogistica.Domain/Entities/Manutencao.cs
+// ============================================
 namespace BAALogistica.Domain.Entities;
 
 public class Manutencao

@@ -1,3 +1,6 @@
+// ============================================
+// BAALogistica.Domain/Entities/Veiculo.cs
+// ============================================
 namespace BAALogistica.Domain.Entities;
 
 public class Veiculo

@@ -1,3 +1,6 @@
+// ============================================
+// BAALogistica.Domain/Entities/Motorista.cs
+// ============================================
 namespace BAALogistica.Domain.Entities;
 
 public class Motorista

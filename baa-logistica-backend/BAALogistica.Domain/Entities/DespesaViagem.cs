@@ -1,3 +1,6 @@
+// ============================================
+// BAALogistica.Domain/Entities/DespesaViagem.cs
+// ============================================
 namespace BAALogistica.Domain.Entities;
 
 public class DespesaViagem

@@ -1,3 +1,6 @@
+// ============================================
+// BAALogistica.Domain/Entities/Cliente.cs
+// ============================================
 namespace BAALogistica.Domain.Entities;
 
 public class Cliente

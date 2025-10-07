@@ -1,3 +1,6 @@
+// ============================================
+// BAALogistica.Domain/Entities/Viagem.cs
+// ============================================
 namespace BAALogistica.Domain.Entities;
 
 public class Viagem
