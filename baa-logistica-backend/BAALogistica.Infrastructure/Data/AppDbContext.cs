@@ -20,6 +20,7 @@ public class AppDbContext : DbContext
     public DbSet<Manutencao> Manutencoes { get; set; }
     public DbSet<DespesaViagem> DespesasViagem { get; set; }
     public DbSet<HistoricoStatusCarga> HistoricoStatusCargas { get; set; }
+    public DbSet<Usuario> Usuarios { get; set; } // ✅ NOVO
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -171,12 +172,43 @@ public class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
+        // ✅ Configuração de Usuario
+        modelBuilder.Entity<Usuario>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Nome).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Email).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Login).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.SenhaHash).IsRequired();
+            entity.Property(e => e.Perfil).HasMaxLength(20).HasDefaultValue("Usuario");
+            entity.Property(e => e.Cargo).HasMaxLength(50);
+            
+            entity.HasIndex(e => e.Login).IsUnique();
+            entity.HasIndex(e => e.Email).IsUnique();
+        });
+
         // Seed Data (dados iniciais para teste)
         SeedData(modelBuilder);
     }
 
     private void SeedData(ModelBuilder modelBuilder)
     {
+        // ✅ Usuário Admin Padrão
+        modelBuilder.Entity<Usuario>().HasData(
+            new Usuario
+            {
+                Id = 1,
+                Nome = "Administrador",
+                Email = "admin@baalogistica.com.br",
+                Login = "admin",
+                SenhaHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
+                Perfil = "Admin",
+                Cargo = "Administrador do Sistema",
+                Ativo = true,
+                DataCriacao = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+            }
+        );
+
         // Clientes iniciais
         modelBuilder.Entity<Cliente>().HasData(
             new Cliente
@@ -190,7 +222,7 @@ public class AppDbContext : DbContext
                 Cidade = "Campinas",
                 Estado = "SP",
                 Status = "Ativo",
-                DataCadastro = DateTime.Now
+                DataCadastro = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
             }
         );
 
@@ -203,11 +235,11 @@ public class AppDbContext : DbContext
                 CPF = "123.456.789-00",
                 CNH = "12345678900",
                 CategoriaCNH = "D",
-                ValidadeCNH = DateTime.Now.AddYears(2),
+                ValidadeCNH = new DateTime(2026, 12, 31, 0, 0, 0, DateTimeKind.Utc),
                 Telefone = "(19) 98765-4321",
-                DataAdmissao = DateTime.Now.AddMonths(-6),
+                DataAdmissao = new DateTime(2023, 6, 1, 0, 0, 0, DateTimeKind.Utc),
                 Status = "Ativo",
-                DataCadastro = DateTime.Now
+                DataCadastro = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
             }
         );
 
@@ -225,8 +257,8 @@ public class AppDbContext : DbContext
                 CapacidadeVolume = 80.0m,
                 KmAtual = 45000,
                 Status = "Disponível",
-                DataAquisicao = DateTime.Now.AddYears(-1),
-                DataCadastro = DateTime.Now
+                DataAquisicao = new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                DataCadastro = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
             }
         );
     }

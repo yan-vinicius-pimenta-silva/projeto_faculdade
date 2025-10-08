@@ -12,6 +12,7 @@ import Modal from '../components/common/Modal';
 import StatusBadge from '../components/common/StatusBadge';
 import { motoristasService } from '../services/motoristasService';
 import { format } from 'date-fns';
+import './Motoristas.css';
 
 const Motoristas = () => {
   const [motoristas, setMotoristas] = useState([]);

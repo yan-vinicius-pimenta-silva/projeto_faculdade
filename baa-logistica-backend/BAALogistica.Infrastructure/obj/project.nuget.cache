@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "F2oq07LsPQQ=",
+  "dgSpecHash": "9OovzMuygQA=",
   "success": true,
   "projectFilePath": "C:\\Users\\yan.silva\\Desktop\\projeto-faculdade\\baa-logistica-backend\\BAALogistica.Infrastructure\\BAALogistica.Infrastructure.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\yan.silva\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\yan.silva\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\yan.silva\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\7.0.0\\microsoft.bcl.asyncinterfaces.7.0.0.nupkg.sha512",
     "C:\\Users\\yan.silva\\.nuget\\packages\\microsoft.build.framework\\17.8.3\\microsoft.build.framework.17.8.3.nupkg.sha512",

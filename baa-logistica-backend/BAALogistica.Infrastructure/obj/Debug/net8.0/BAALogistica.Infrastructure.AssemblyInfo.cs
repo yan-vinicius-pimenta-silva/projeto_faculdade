@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BAALogistica.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+202c036ebe934452c8418d8515a196cdc9011dde")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ebc6b1a0de19a0705433e1afddcdfb9b903a6967")]
 [assembly: System.Reflection.AssemblyProductAttribute("BAALogistica.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BAALogistica.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

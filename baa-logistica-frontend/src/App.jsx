@@ -1,37 +1,120 @@
-// ============================================
-// src/App.jsx
-// ============================================
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Sidebar from './components/common/Sidebar';
-import Navbar from './components/common/Navbar';
+import { AuthProvider } from './contexts/AuthContext';
+import PrivateRoute from './components/PrivateRoute';
+import Navbar from './components/Navbar';
+import Login from './pages/Login';
+import AlterarSenha from './pages/AlterarSenha';
 import Dashboard from './pages/Dashboard';
 import Motoristas from './pages/Motoristas';
 import Veiculos from './pages/Veiculos';
+import Clientes from './pages/Clientes';
 import Cargas from './pages/Cargas';
 import Viagens from './pages/Viagens';
-import Clientes from './pages/Clientes';
+import './App.css';
+
+// Layout com Navbar (para páginas protegidas)
+const PrivateLayout = ({ children }) => {
+  return (
+    <>
+      <Navbar />
+      <div className="app-content">
+        {children}
+      </div>
+    </>
+  );
+};
 
 function App() {
   return (
-    <Router>
-      <div className="flex h-screen bg-gray-100">
-        <Sidebar />
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <Navbar />
-          <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
-            <Routes>
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/motoristas" element={<Motoristas />} />
-              <Route path="/veiculos" element={<Veiculos />} />
-              <Route path="/cargas" element={<Cargas />} />
-              <Route path="/viagens" element={<Viagens />} />
-              <Route path="/clientes" element={<Clientes />} />
-            </Routes>
-          </main>
-        </div>
-      </div>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* Rota pública - Login */}
+          <Route path="/login" element={<Login />} />
+
+          {/* Rotas protegidas */}
+          <Route
+            path="/"
+            element={
+              <PrivateRoute>
+                <PrivateLayout>
+                  <Dashboard />
+                </PrivateLayout>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/motoristas"
+            element={
+              <PrivateRoute>
+                <PrivateLayout>
+                  <Motoristas />
+                </PrivateLayout>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/veiculos"
+            element={
+              <PrivateRoute>
+                <PrivateLayout>
+                  <Veiculos />
+                </PrivateLayout>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/clientes"
+            element={
+              <PrivateRoute>
+                <PrivateLayout>
+                  <Clientes />
+                </PrivateLayout>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/cargas"
+            element={
+              <PrivateRoute>
+                <PrivateLayout>
+                  <Cargas />
+                </PrivateLayout>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/viagens"
+            element={
+              <PrivateRoute>
+                <PrivateLayout>
+                  <Viagens />
+                </PrivateLayout>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/alterar-senha"
+            element={
+              <PrivateRoute>
+                <PrivateLayout>
+                  <AlterarSenha />
+                </PrivateLayout>
+              </PrivateRoute>
+            }
+          />
+
+          {/* Redirecionar qualquer rota não encontrada */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

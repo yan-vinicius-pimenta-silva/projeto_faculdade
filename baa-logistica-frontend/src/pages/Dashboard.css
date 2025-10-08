@@ -1,0 +1,295 @@
+/* Dashboard Container */
+.space-y-6 > * + * {
+  margin-top: 24px;
+}
+
+/* Page Title */
+.text-3xl {
+  font-size: 30px;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.text-gray-800 {
+  color: #1f2937;
+}
+
+/* Stats Grid */
+.grid {
+  display: grid;
+}
+
+.grid-cols-1 {
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+.gap-6 {
+  gap: 24px;
+}
+
+@media (min-width: 768px) {
+  .md\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .lg\:grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Stat Cards with Colored Borders */
+.border-l-4 {
+  border-left-width: 4px;
+  border-left-style: solid;
+}
+
+.border-blue-500 {
+  border-left-color: #3b82f6;
+}
+
+.border-green-500 {
+  border-left-color: #22c55e;
+}
+
+.border-yellow-500 {
+  border-left-color: #eab308;
+}
+
+.border-purple-500 {
+  border-left-color: #a855f7;
+}
+
+/* Flex Utilities */
+.flex {
+  display: flex;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+/* Stat Card Content */
+.text-sm {
+  font-size: 14px;
+}
+
+.text-xs {
+  font-size: 12px;
+}
+
+.text-2xl {
+  font-size: 24px;
+}
+
+.text-xl {
+  font-size: 20px;
+}
+
+.text-gray-600 {
+  color: #4b5563;
+}
+
+.text-gray-500 {
+  color: #6b7280;
+}
+
+/* Icon Containers */
+.p-3 {
+  padding: 12px;
+}
+
+.rounded-full {
+  border-radius: 9999px;
+}
+
+.bg-blue-100 {
+  background-color: #dbeafe;
+}
+
+.text-blue-600 {
+  color: #2563eb;
+}
+
+.bg-green-100 {
+  background-color: #dcfce7;
+}
+
+.text-green-600 {
+  color: #16a34a;
+}
+
+.bg-yellow-100 {
+  background-color: #fef3c7;
+}
+
+.text-yellow-600 {
+  color: #ca8a04;
+}
+
+.bg-purple-100 {
+  background-color: #f3e8ff;
+}
+
+.text-purple-600 {
+  color: #9333ea;
+}
+
+/* Loading State */
+.h-full {
+  height: 100%;
+}
+
+/* Empty State / Center Text */
+.text-center {
+  text-align: center;
+}
+
+.py-4 {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+/* Additional Dashboard Specific Styles */
+.dashboard-stat-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dashboard-stat-info {
+  flex: 1;
+}
+
+.dashboard-stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 4px 0;
+}
+
+.dashboard-stat-label {
+  font-size: 14px;
+  color: #4b5563;
+  margin-bottom: 4px;
+}
+
+.dashboard-stat-sublabel {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.dashboard-icon-wrapper {
+  padding: 12px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Card Component Styling (if not already styled) */
+.bg-white {
+  background-color: white;
+}
+
+.rounded-lg {
+  border-radius: 8px;
+}
+
+.shadow-md {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.p-6 {
+  padding: 24px;
+}
+
+.mb-4 {
+  margin-bottom: 16px;
+}
+
+/* Table Styling (if not already styled) */
+.min-w-full {
+  min-width: 100%;
+}
+
+.divide-y {
+  border-top-width: 0;
+}
+
+.divide-gray-200 > * + * {
+  border-top: 1px solid #e5e7eb;
+}
+
+.bg-gray-50 {
+  background-color: #f9fafb;
+}
+
+.px-6 {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.py-3 {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.py-4 {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.uppercase {
+  text-transform: uppercase;
+}
+
+.tracking-wider {
+  letter-spacing: 0.05em;
+}
+
+.whitespace-nowrap {
+  white-space: nowrap;
+}
+
+.text-gray-900 {
+  color: #111827;
+}
+
+.hover\:bg-gray-50:hover {
+  background-color: #f9fafb;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .text-3xl {
+    font-size: 24px;
+  }
+
+  .text-2xl {
+    font-size: 20px;
+  }
+}

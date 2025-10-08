@@ -8,6 +8,7 @@ import Table from '../components/common/Table';
 import StatusBadge from '../components/common/StatusBadge';
 import { dashboardService } from '../services/dashboardService';
 import { format } from 'date-fns';
+import './Dashboard.css';
 
 const Dashboard = () => {
   const [estatisticas, setEstatisticas] = useState(null);
