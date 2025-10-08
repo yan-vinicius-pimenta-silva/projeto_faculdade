@@ -397,4 +397,4 @@ Projeto acadêmico desenvolvido para a empresa B.A.A Logística como parte da at
 9. ✅ **Changelog** com versão 2.0.0
 10. ✅ **Instruções de teste via Swagger** com autenticação
 
-**Salve este README na raiz do projeto!** 📝🚀
+📝🚀
