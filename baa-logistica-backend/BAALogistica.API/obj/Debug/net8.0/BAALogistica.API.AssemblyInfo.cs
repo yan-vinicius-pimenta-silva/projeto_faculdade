@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BAALogistica.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6c951d93e8776a083db0b50f930f4e5150efdd38")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+52b360a1f52a54ccf482f65b48ee409dad52a2cd")]
 [assembly: System.Reflection.AssemblyProductAttribute("BAALogistica.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BAALogistica.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
