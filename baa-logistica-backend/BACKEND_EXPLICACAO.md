@@ -118,4 +118,60 @@ Pelo que vejo nos Controllers, o sistema gerencia:
 
 ---
 
+## 🗄️ Estrutura do Banco de Dados SQLite em Detalhes
+
+O arquivo `baalogistica.db` fica na raiz do projeto da API e é criado automaticamente na primeira execução graças ao `EnsureCreated()` configurado em `Program.cs`. O contexto `AppDbContext` mapeia cada entidade do domínio para uma tabela com validações e relacionamentos explícitos. A seguir, um panorama tabela a tabela:
+
+| Tabela | Finalidade | Campos-chave |
+|--------|------------|--------------|
+| `Usuarios` | Controla autenticação e perfis. Seed inicial cria os usuários `admin` (perfil Admin) e `usuario` (perfil Usuario) com senhas criptografadas via BCrypt. | Índices únicos em `Login` e `Email` garantem unicidade; campos `Perfil`, `Ativo` e `DataUltimoAcesso` alimentam as regras de acesso. |
+| `Clientes` | Cadastro de embarcadores/contratantes. | Índices únicos para `CNPJ` e `CPF`; colunas de endereço e contato dão suporte ao front na coleta de dados completos. |
+| `Motoristas` | Registro da equipe de transporte. | Índices únicos em `CPF` e `CNH`, índice em `Status` para consultas rápidas por disponibilidade. |
+| `Veiculos` | Frota de caminhões/carretas. | Índice único em `Placa` e índice em `Status`. Campos `CapacidadeCarga` e `CapacidadeVolume` usam `decimal(10,2)` para precisão. |
+| `Cargas` | Ordens de transporte vinculadas a clientes. | Chave estrangeira obrigatória para `ClienteId` (delete restrito). Campos de datas, volume e endereço suportam toda a jornada da carga. |
+| `Viagens` | Programações de rota por carga. | FKs para `Carga`, `Veiculo` e `Motorista` (delete restrito) e índices que aceleram filtros por status. Guarda dados operacionais como quilometragens e previsão de chegada. |
+| `DespesasViagem` | Controle financeiro por viagem. | FK cascata com `Viagens`, registrando tipo, valor e data da despesa. |
+| `Manutencoes` | Histórico de manutenção da frota. | FK cascata com `Veiculos`, incluindo custo, quilometragem e próxima manutenção. |
+| `HistoricoStatusCargas` | Log de mudança de status das cargas. | FK cascata com `Cargas`, registra status anterior, novo e observações. |
+
+### Relacionamentos principais
+
+- **Cliente 1:N Carga:** cada carga aponta para um cliente, e o delete é restrito para evitar perda de histórico involuntária.
+- **Carga 1:N Viagem:** uma carga pode ter diversas viagens (ex.: reentregas). A deleção é restrita, preservando integridade operacional.
+- **Motorista/Veículo 1:N Viagem:** garante rastreabilidade de quem executou a viagem e com qual veículo.
+- **Viagem 1:N DespesaViagem:** facilita projeção de custos agregados por roteiro.
+- **Veículo 1:N Manutencao** e **Carga 1:N HistoricoStatusCarga:** armazenam histórico técnico e de rastreio.
+
+Todos os relacionamentos e restrições aparecem tanto nas configurações fluentes do `AppDbContext` quanto no schema real do SQLite (`.schema`). Além disso, o contexto define valores padrão (`HasDefaultValue`) para status e aplica tipos `decimal(12,2)` quando a precisão financeira é necessária, evitando arredondamentos indesejados.
+
+### Semeadura inicial (Seed)
+
+A rotina `SeedData` pré-carrega o banco com:
+
+- Usuário administrador (`admin/admin123`) com cargo e perfil de administrador.
+- Usuário padrão (`usuario/usuario123`) ativo com perfil `Usuario`, utilizado para validar regras de permissão.
+- Um cliente, motorista e veículo base, todos datados de 2024 para testes.
+
+Essa semente usa `BCrypt` para armazenar a senha de forma segura, e datas em UTC para consistência.
+
+### Cuidados operacionais
+
+- **Criação automática:** `EnsureCreated` dispensa migrations em cenários de demonstração, mas em produção recomenda-se substituí-lo por `Database.Migrate()` para versionar o schema.
+- **WAL Mode:** o arquivo `baalogistica.db-wal` indica que o SQLite está usando *Write-Ahead Logging*, melhorando concorrência para múltiplas conexões simultâneas.
+- **Índices estratégicos:** consultas frequentes (por exemplo, filtros por status no dashboard) se beneficiam dos índices adicionados pelo EF Core (`HasIndex`), reduzindo latência em dispositivos modestos.
+
+---
+
+## 🔁 Fluxo de Requisições e Uso do Banco
+
+1. **Autenticação:** `AuthController` verifica o login consultando `Usuarios` e validando a senha com BCrypt. Em caso de sucesso, atualiza `DataUltimoAcesso` e emite um JWT com `Perfil` como claim de autorização.
+2. **Gestão de usuários:** `UsuariosController` expõe `GET /usuarios` para listar perfis ativos (disponível a qualquer autenticado) e `POST /usuarios` protegido por `[Authorize(Roles = "Admin")]`, permitindo apenas administradores criarem novos logins com perfis `Admin` ou `Usuario`.
+3. **CRUDs principais:** os controladores de `Clientes`, `Motoristas`, `Veiculos`, `Cargas` e `Viagens` usam diretamente o `AppDbContext` para consultar e persistir dados. As validações de unicidade do SQLite retornam erros tratáveis no backend (por exemplo, tentativa de cadastrar CPF duplicado).
+4. **Dashboard:** o `DashboardController` agrega dados com `GroupBy` e projeções Linq, fazendo uso dos índices de status para relatórios ágeis.
+5. **Históricos:** alterações de status de carga ou de viagens geram registros auxiliares (`HistoricoStatusCargas`, `DespesasViagem`) garantindo rastreabilidade operacional e financeira.
+
+Por ser um banco embarcado, todas as operações ocorrem em um único arquivo, o que facilita deploy em ambientes simples (ex.: demonstrações em laboratório). Contudo, a modelagem já está pronta para ser migrada para SQL Server ou PostgreSQL alterando apenas a connection string e o provider EF Core.
+
+---
+
 

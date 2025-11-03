@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Card from '../components/common/Card';
+import Input from '../components/common/Input';
+import Button from '../components/common/Button';
 import authService from '../services/authService';
-
 
 const AlterarSenha = () => {
   const [formData, setFormData] = useState({
@@ -62,83 +64,60 @@ const AlterarSenha = () => {
   };
 
   return (
-    <div className="alterar-senha-container">
-      <div className="alterar-senha-box">
-        <h1>🔑 Alterar Senha</h1>
-        <p className="subtitle">Mantenha sua conta segura</p>
+    <div className="page-shell">
+      <div className="page-header">
+        <div className="page-header__title-group">
+          <h1 className="page-title">Alterar senha</h1>
+          <p className="page-subtitle">Mantenha sua conta protegida com uma credencial segura</p>
+        </div>
+      </div>
 
-        <form onSubmit={handleSubmit} className="alterar-senha-form">
-          <div className="form-group">
-            <label htmlFor="senhaAtual">Senha Atual</label>
-            <input
-              type="password"
-              id="senhaAtual"
-              name="senhaAtual"
-              value={formData.senhaAtual}
-              onChange={handleChange}
-              placeholder="Digite sua senha atual"
-              required
-              autoFocus
-            />
-          </div>
+      <Card title="Atualize sua senha" subtitle="Informe a senha atual e escolha uma nova combinação">
+        <form onSubmit={handleSubmit} className="form-grid form-grid--two">
+          <Input
+            label="Senha atual"
+            name="senhaAtual"
+            type="password"
+            value={formData.senhaAtual}
+            onChange={handleChange}
+            placeholder="Digite sua senha atual"
+            required
+            autoFocus
+          />
 
-          <div className="form-group">
-            <label htmlFor="novaSenha">Nova Senha</label>
-            <input
-              type="password"
-              id="novaSenha"
-              name="novaSenha"
-              value={formData.novaSenha}
-              onChange={handleChange}
-              placeholder="Digite a nova senha (mínimo 6 caracteres)"
-              required
-            />
-          </div>
+          <Input
+            label="Nova senha"
+            name="novaSenha"
+            type="password"
+            value={formData.novaSenha}
+            onChange={handleChange}
+            placeholder="Mínimo de 6 caracteres"
+            required
+          />
 
-          <div className="form-group">
-            <label htmlFor="confirmarSenha">Confirmar Nova Senha</label>
-            <input
-              type="password"
-              id="confirmarSenha"
-              name="confirmarSenha"
-              value={formData.confirmarSenha}
-              onChange={handleChange}
-              placeholder="Digite novamente a nova senha"
-              required
-            />
-          </div>
+          <Input
+            label="Confirmar nova senha"
+            name="confirmarSenha"
+            type="password"
+            value={formData.confirmarSenha}
+            onChange={handleChange}
+            placeholder="Repita a nova senha"
+            required
+          />
 
-          {error && (
-            <div className="error-message">
-              ⚠️ {error}
-            </div>
-          )}
-
-          {success && (
-            <div className="success-message">
-              ✅ {success}
-            </div>
-          )}
+          {error && <div className="alert alert--error">⚠️ {error}</div>}
+          {success && <div className="alert alert--success">✅ {success}</div>}
 
           <div className="form-actions">
-            <button
-              type="button"
-              className="btn-cancel"
-              onClick={() => navigate('/')}
-              disabled={loading}
-            >
+            <Button type="button" variant="secondary" onClick={() => navigate('/')} disabled={loading}>
               Cancelar
-            </button>
-            <button
-              type="submit"
-              className="btn-submit"
-              disabled={loading}
-            >
-              {loading ? 'Alterando...' : 'Alterar Senha'}
-            </button>
+            </Button>
+            <Button type="submit" disabled={loading}>
+              {loading ? 'Alterando...' : 'Alterar senha'}
+            </Button>
           </div>
         </form>
-      </div>
+      </Card>
     </div>
   );
 };

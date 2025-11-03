@@ -10,6 +10,7 @@ import Veiculos from './pages/Veiculos';
 import Clientes from './pages/Clientes';
 import Cargas from './pages/Cargas';
 import Viagens from './pages/Viagens';
+import Usuarios from './pages/Usuarios';
 import './App.css';
 
 // Layout com Navbar (para páginas protegidas)
@@ -94,6 +95,17 @@ function App() {
               <PrivateRoute>
                 <PrivateLayout>
                   <Viagens />
+                </PrivateLayout>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/usuarios"
+            element={
+              <PrivateRoute allowedRoles={['Admin']}>
+                <PrivateLayout>
+                  <Usuarios />
                 </PrivateLayout>
               </PrivateRoute>
             }

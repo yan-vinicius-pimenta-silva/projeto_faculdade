@@ -12,7 +12,6 @@ import Modal from '../components/common/Modal';
 import StatusBadge from '../components/common/StatusBadge';
 import { motoristasService } from '../services/motoristasService';
 import { format } from 'date-fns';
-import './Motoristas.css';
 
 // ============================================
 // FUNÇÕES UTILITÁRIAS DE CPF
@@ -692,16 +691,20 @@ const Motoristas = () => {
     {
       header: 'Ações',
       render: (row) => (
-        <div className="flex space-x-2">
+        <div className="table-actions">
           <button
+            type="button"
             onClick={() => handleOpenModal(row)}
-            className="text-blue-600 hover:text-blue-800"
+            className="table-action table-action--edit"
+            aria-label={`Editar motorista ${row.nome}`}
           >
             <Edit size={18} />
           </button>
           <button
+            type="button"
             onClick={() => handleDelete(row.id)}
-            className="text-red-600 hover:text-red-800"
+            className="table-action table-action--delete"
+            aria-label={`Excluir motorista ${row.nome}`}
           >
             <Trash2 size={18} />
           </button>
@@ -711,26 +714,31 @@ const Motoristas = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-800">Motoristas</h1>
-        <Button onClick={() => handleOpenModal()}>
-          <Plus size={20} className="inline mr-2" />
-          Novo Motorista
-        </Button>
+    <div className="page-shell">
+      <div className="page-header">
+        <div className="page-header__title-group">
+          <h1 className="page-title">Motoristas</h1>
+          <p className="page-subtitle">Gestão completa dos condutores da frota</p>
+        </div>
+        <div className="page-header__actions">
+          <Button onClick={() => handleOpenModal()}>
+            <Plus size={20} />
+            Novo motorista
+          </Button>
+        </div>
       </div>
 
-      {/* Filtros */}
       <Card>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+        <div className="page-filters">
+          <div className="search-field">
+            <Search className="search-field__icon" size={20} />
             <input
               type="text"
               placeholder="Buscar por nome, CPF ou CNH..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="search-field__input"
+              aria-label="Buscar motoristas"
             />
           </div>
           <Select
@@ -748,10 +756,9 @@ const Motoristas = () => {
         </div>
       </Card>
 
-      {/* Tabela */}
-      <Card>
+      <Card title="Motoristas cadastrados" subtitle="Acompanhe os profissionais da equipe">
         {loading ? (
-          <p className="text-center text-gray-500 py-4">Carregando...</p>
+          <div className="loading-state">Carregando...</div>
         ) : (
           <Table columns={columns} data={filteredMotoristas} />
         )}
@@ -765,87 +772,67 @@ const Motoristas = () => {
         size="lg"
       >
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Input
-                label="Nome Completo"
-                name="nome"
-                value={formData.nome}
-                onChange={handleInputChange}
-                required
-              />
-              {validationErrors.nome && (
-                <p className="text-red-500 text-sm mt-1">{validationErrors.nome}</p>
-              )}
-            </div>
+          <div className="form-grid form-grid--two">
+            <Input
+              label="Nome Completo"
+              name="nome"
+              value={formData.nome}
+              onChange={handleInputChange}
+              required
+              error={validationErrors.nome}
+            />
 
-            <div>
-              <Input
-                label="CPF"
-                name="cpf"
-                value={formData.cpf}
-                onChange={handleInputChange}
-                onBlur={handleCPFBlur}
-                placeholder="000.000.000-00"
-                maxLength={14}
-                required
-              />
-              {validationErrors.cpf && (
-                <p className="text-red-500 text-sm mt-1">{validationErrors.cpf}</p>
-              )}
-            </div>
+            <Input
+              label="CPF"
+              name="cpf"
+              value={formData.cpf}
+              onChange={handleInputChange}
+              onBlur={handleCPFBlur}
+              placeholder="000.000.000-00"
+              maxLength={14}
+              required
+              error={validationErrors.cpf}
+            />
 
-            <div>
-              <Input
-                label="CNH"
-                name="cnh"
-                value={formData.cnh}
-                onChange={handleInputChange}
-                onBlur={handleCNHBlur}
-                placeholder="00000000000"
-                maxLength={11}
-                required
-              />
-              {validationErrors.cnh && (
-                <p className="text-red-500 text-sm mt-1">{validationErrors.cnh}</p>
-              )}
-            </div>
+            <Input
+              label="CNH"
+              name="cnh"
+              value={formData.cnh}
+              onChange={handleInputChange}
+              onBlur={handleCNHBlur}
+              placeholder="00000000000"
+              maxLength={11}
+              required
+              error={validationErrors.cnh}
+            />
 
-            <div>
-              <Select
-                label="Categoria CNH"
-                name="categoriaCNH"
-                value={formData.categoriaCNH}
-                onChange={handleInputChange}
-                options={[
-                  { value: 'A', label: 'A' },
-                  { value: 'B', label: 'B' },
-                  { value: 'C', label: 'C' },
-                  { value: 'D', label: 'D' },
-                  { value: 'E', label: 'E' },
-                ]}
-                required
-              />
-              {validationErrors.categoriaCNH && (
-                <p className="text-red-500 text-sm mt-1">{validationErrors.categoriaCNH}</p>
-              )}
-            </div>
+            <Select
+              label="Categoria CNH"
+              name="categoriaCNH"
+              value={formData.categoriaCNH}
+              onChange={handleInputChange}
+              options={[
+                { value: 'A', label: 'A' },
+                { value: 'B', label: 'B' },
+                { value: 'C', label: 'C' },
+                { value: 'D', label: 'D' },
+                { value: 'E', label: 'E' },
+              ]}
+              required
+              error={validationErrors.categoriaCNH}
+            />
 
-            <div>
-              <Input
-                label="Validade CNH"
-                name="validadeCNH"
-                type="date"
-                value={formData.validadeCNH}
-                onChange={handleInputChange}
-                required
-              />
-              {validationErrors.validadeCNH && (
-                <p className="text-red-500 text-sm mt-1">{validationErrors.validadeCNH}</p>
-              )}
-            </div>
+            <Input
+              label="Validade CNH"
+              name="validadeCNH"
+              type="date"
+              value={formData.validadeCNH}
+              onChange={handleInputChange}
+              required
+              error={validationErrors.validadeCNH}
+            />
 
-            <div>
+            <div className="form-field-group">
               <Input
                 label="Telefone"
                 name="telefone"
@@ -854,14 +841,12 @@ const Motoristas = () => {
                 onBlur={handleTelefoneBlur}
                 placeholder="(00) 00000-0000"
                 maxLength={15}
+                error={validationErrors.telefone}
               />
-              {validationErrors.telefone && (
-                <p className="text-red-500 text-sm mt-1">{validationErrors.telefone}</p>
-              )}
-              <p className="text-xs text-gray-500 mt-1">Será enviado no formato E.164: +5519999998888</p>
+              <p className="form-field__note">Será enviado no formato E.164: +5519999998888</p>
             </div>
 
-            <div>
+            <div className="form-field-group">
               <Input
                 label="E-mail"
                 name="email"
@@ -871,11 +856,9 @@ const Motoristas = () => {
                 onBlur={handleEmailBlur}
                 onKeyPress={handleEmailKeyPress}
                 maxLength={320}
+                error={validationErrors.email}
               />
-              {validationErrors.email && (
-                <p className="text-red-500 text-sm mt-1">{validationErrors.email}</p>
-              )}
-              <p className="text-xs text-gray-500 mt-1">Apenas caracteres válidos são permitidos</p>
+              <p className="form-field__note">Apenas caracteres válidos são permitidos</p>
             </div>
 
             <Input
@@ -886,19 +869,15 @@ const Motoristas = () => {
               onChange={handleInputChange}
             />
 
-            <div>
-              <Input
-                label="Data de Admissão"
-                name="dataAdmissao"
-                type="date"
-                value={formData.dataAdmissao}
-                onChange={handleInputChange}
-                required
-              />
-              {validationErrors.dataAdmissao && (
-                <p className="text-red-500 text-sm mt-1">{validationErrors.dataAdmissao}</p>
-              )}
-            </div>
+            <Input
+              label="Data de Admissão"
+              name="dataAdmissao"
+              type="date"
+              value={formData.dataAdmissao}
+              onChange={handleInputChange}
+              required
+              error={validationErrors.dataAdmissao}
+            />
 
             <Select
               label="Status"
@@ -921,24 +900,25 @@ const Motoristas = () => {
             onChange={handleInputChange}
           />
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div className="form-field">
+            <label htmlFor="observacoes" className="form-field__label">
               Observações
             </label>
             <textarea
+              id="observacoes"
               name="observacoes"
               value={formData.observacoes}
               onChange={handleInputChange}
               rows="3"
               maxLength={150}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="form-field__control"
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="form-field__note">
               {formData.observacoes.length}/150 caracteres
             </p>
           </div>
 
-          <div className="flex justify-end space-x-3 mt-6">
+          <div className="form-actions">
             <Button type="button" variant="secondary" onClick={handleCloseModal}>
               Cancelar
             </Button>

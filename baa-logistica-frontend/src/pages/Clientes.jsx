@@ -168,16 +168,20 @@ const Clientes = () => {
     {
       header: 'Ações',
       render: (row) => (
-        <div className="flex space-x-2">
+        <div className="table-actions">
           <button
+            type="button"
             onClick={() => handleOpenModal(row)}
-            className="text-blue-600 hover:text-blue-800"
+            className="table-action table-action--edit"
+            aria-label={`Editar cliente ${row.razaoSocial}`}
           >
             <Edit size={18} />
           </button>
           <button
+            type="button"
             onClick={() => handleDelete(row.id)}
-            className="text-red-600 hover:text-red-800"
+            className="table-action table-action--delete"
+            aria-label={`Excluir cliente ${row.razaoSocial}`}
           >
             <Trash2 size={18} />
           </button>
@@ -187,26 +191,31 @@ const Clientes = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-800">Clientes</h1>
-        <Button onClick={() => handleOpenModal()}>
-          <Plus size={20} className="inline mr-2" />
-          Novo Cliente
-        </Button>
+    <div className="page-shell">
+      <div className="page-header">
+        <div className="page-header__title-group">
+          <h1 className="page-title">Clientes</h1>
+          <p className="page-subtitle">Cadastro e acompanhamento de parceiros comerciais</p>
+        </div>
+        <div className="page-header__actions">
+          <Button onClick={() => handleOpenModal()}>
+            <Plus size={20} />
+            Novo cliente
+          </Button>
+        </div>
       </div>
 
-      {/* Filtros */}
       <Card>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+        <div className="page-filters">
+          <div className="search-field">
+            <Search className="search-field__icon" size={20} />
             <input
               type="text"
               placeholder="Buscar por nome, CNPJ ou CPF..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="search-field__input"
+              aria-label="Buscar clientes"
             />
           </div>
           <Select
@@ -223,10 +232,9 @@ const Clientes = () => {
         </div>
       </Card>
 
-      {/* Tabela */}
-      <Card>
+      <Card title="Clientes cadastrados" subtitle="Informações atualizadas em tempo real">
         {loading ? (
-          <p className="text-center text-gray-500 py-4">Carregando...</p>
+          <div className="loading-state">Carregando...</div>
         ) : (
           <Table columns={columns} data={filteredClientes} />
         )}
@@ -240,7 +248,7 @@ const Clientes = () => {
         size="lg"
       >
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="form-grid form-grid--two">
             <Input
               label="Razão Social"
               name="razaoSocial"
@@ -301,16 +309,14 @@ const Clientes = () => {
             />
           </div>
 
-          <div className="mt-4">
-            <Input
-              label="Endereço"
-              name="endereco"
-              value={formData.endereco}
-              onChange={handleInputChange}
-            />
-          </div>
+          <Input
+            label="Endereço"
+            name="endereco"
+            value={formData.endereco}
+            onChange={handleInputChange}
+          />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <div className="form-grid form-grid--three">
             <Input
               label="Cidade"
               name="cidade"
@@ -334,7 +340,7 @@ const Clientes = () => {
             />
           </div>
 
-          <div className="flex justify-end space-x-3 mt-6">
+          <div className="form-actions">
             <Button type="button" variant="secondary" onClick={handleCloseModal}>
               Cancelar
             </Button>

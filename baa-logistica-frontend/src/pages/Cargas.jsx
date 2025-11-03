@@ -211,16 +211,20 @@ const Cargas = () => {
     {
       header: 'Ações',
       render: (row) => (
-        <div className="flex space-x-2">
+        <div className="table-actions">
           <button
+            type="button"
             onClick={() => handleOpenModal(row)}
-            className="text-blue-600 hover:text-blue-800"
+            className="table-action table-action--edit"
+            aria-label={`Editar carga ${row.numeroProtocolo}`}
           >
             <Edit size={18} />
           </button>
           <button
+            type="button"
             onClick={() => handleDelete(row.id)}
-            className="text-red-600 hover:text-red-800"
+            className="table-action table-action--delete"
+            aria-label={`Excluir carga ${row.numeroProtocolo}`}
           >
             <Trash2 size={18} />
           </button>
@@ -230,26 +234,31 @@ const Cargas = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-800">Cargas</h1>
-        <Button onClick={() => handleOpenModal()}>
-          <Plus size={20} className="inline mr-2" />
-          Nova Carga
-        </Button>
+    <div className="page-shell">
+      <div className="page-header">
+        <div className="page-header__title-group">
+          <h1 className="page-title">Cargas</h1>
+          <p className="page-subtitle">Monitoramento das operações de coleta e entrega</p>
+        </div>
+        <div className="page-header__actions">
+          <Button onClick={() => handleOpenModal()}>
+            <Plus size={20} />
+            Nova carga
+          </Button>
+        </div>
       </div>
 
-      {/* Filtros */}
       <Card>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+        <div className="page-filters">
+          <div className="search-field">
+            <Search className="search-field__icon" size={20} />
             <input
               type="text"
               placeholder="Buscar por protocolo, descrição ou cliente..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="search-field__input"
+              aria-label="Buscar cargas"
             />
           </div>
           <Select
@@ -268,10 +277,9 @@ const Cargas = () => {
         </div>
       </Card>
 
-      {/* Tabela */}
-      <Card>
+      <Card title="Cargas registradas" subtitle="Acompanhe o andamento das entregas">
         {loading ? (
-          <p className="text-center text-gray-500 py-4">Carregando...</p>
+          <div className="loading-state">Carregando...</div>
         ) : (
           <Table columns={columns} data={filteredCargas} />
         )}
@@ -285,7 +293,7 @@ const Cargas = () => {
         size="xl"
       >
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="form-grid form-grid--two">
             <Input
               label="Número do Protocolo"
               name="numeroProtocolo"
@@ -343,25 +351,23 @@ const Cargas = () => {
             />
           </div>
 
-          <div className="mt-4">
-            <Input
-              label="Descrição da Carga"
-              name="descricaoCarga"
-              value={formData.descricaoCarga}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
+          <Input
+            label="Descrição da Carga"
+            name="descricaoCarga"
+            value={formData.descricaoCarga}
+            onChange={handleInputChange}
+            required
+          />
 
-          <h3 className="text-lg font-semibold mt-6 mb-3">Coleta</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <h3 className="section-title">Coleta</h3>
+          <div className="form-grid form-grid--three">
             <Input
               label="Endereço de Coleta"
               name="enderecoColeta"
               value={formData.enderecoColeta}
               onChange={handleInputChange}
               required
-              className="md:col-span-3"
+              className="form-grid__item--span-all"
             />
             <Input
               label="Cidade"
@@ -388,15 +394,15 @@ const Cargas = () => {
             />
           </div>
 
-          <h3 className="text-lg font-semibold mt-6 mb-3">Entrega</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <h3 className="section-title">Entrega</h3>
+          <div className="form-grid form-grid--three">
             <Input
               label="Endereço de Entrega"
               name="enderecoEntrega"
               value={formData.enderecoEntrega}
               onChange={handleInputChange}
               required
-              className="md:col-span-3"
+              className="form-grid__item--span-all"
             />
             <Input
               label="Cidade"
@@ -423,36 +429,35 @@ const Cargas = () => {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <Select
-              label="Status"
-              name="status"
-              value={formData.status}
-              onChange={handleInputChange}
-              options={[
-                { value: 'Aguardando', label: 'Aguardando' },
-                { value: 'Em Transporte', label: 'Em Transporte' },
-                { value: 'Entregue', label: 'Entregue' },
-                { value: 'Cancelada', label: 'Cancelada' },
-              ]}
-              required
-            />
-          </div>
+          <Select
+            label="Status"
+            name="status"
+            value={formData.status}
+            onChange={handleInputChange}
+            options={[
+              { value: 'Aguardando', label: 'Aguardando' },
+              { value: 'Em Transporte', label: 'Em Transporte' },
+              { value: 'Entregue', label: 'Entregue' },
+              { value: 'Cancelada', label: 'Cancelada' },
+            ]}
+            required
+          />
 
-          <div className="mb-4 mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div className="form-field">
+            <label htmlFor="observacoes-carga" className="form-field__label">
               Observações
             </label>
             <textarea
+              id="observacoes-carga"
               name="observacoes"
               value={formData.observacoes}
               onChange={handleInputChange}
               rows="3"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="form-field__control"
             />
           </div>
 
-          <div className="flex justify-end space-x-3 mt-6">
+          <div className="form-actions">
             <Button type="button" variant="secondary" onClick={handleCloseModal}>
               Cancelar
             </Button>
