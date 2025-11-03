@@ -73,14 +73,7 @@ const Navbar = () => {
           </div>
           <div className="app-navbar__actions">
             <NavLink to="/perfil" className="app-navbar__action">
-              <span className="app-navbar__avatar" aria-hidden={false}>
-                {user?.avatar ? (
-                  <img src={user.avatar} alt="Foto do perfil" />
-                ) : (
-                  <span className="app-navbar__avatar-initials">{userInitials}</span>
-                )}
-              </span>
-              <span className="app-navbar__action-label">Perfil</span>
+              ⚙️ Perfil
             </NavLink>
             <button
               type="button"
