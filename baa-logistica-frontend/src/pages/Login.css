@@ -1,13 +1,14 @@
 /* Login Page Container */
 .login-container {
   min-height: 100vh;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background:
-    radial-gradient(circle at top left, rgba(141, 169, 196, 0.35), transparent 55%),
-    radial-gradient(circle at bottom right, rgba(11, 37, 69, 0.28), transparent 60%),
-    linear-gradient(135deg, #0b2545 0%, #13315c 55%, #134074 100%);
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   padding: 20px;
 }
 
@@ -24,23 +25,43 @@
 
 /* Login Header */
 .login-header {
-  background: linear-gradient(140deg, rgba(11, 37, 69, 0.9) 0%, rgba(19, 49, 92, 0.92) 50%, rgba(19, 64, 116, 0.92) 100%);
+  background: linear-gradient(
+    140deg,
+    rgba(11, 37, 69, 0.9) 0%,
+    rgba(19, 49, 92, 0.92) 50%,
+    rgba(19, 64, 116, 0.92) 100%
+  );
   color: #eef4ed;
   padding: 32px 40px;
   text-align: center;
 }
 
+.logo-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+.login-logo {
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
 .login-header h1 {
   font-size: 28px;
   font-weight: 700;
-  margin-bottom: 8px;
   color: #eef4ed;
+  margin: 0;
 }
 
 .login-header p {
   font-size: 14px;
   opacity: 0.9;
-  margin: 0;
+  margin-top: 8px;
 }
 
 /* Login Form */
@@ -95,7 +116,6 @@
 }
 
 /* Login Button */
-
 .btn-login {
   width: 100%;
   padding: 14px;
@@ -164,7 +184,12 @@
   }
 
   .login-header h1 {
-    font-size: 24px;
+    font-size: 22px;
+  }
+
+  .login-logo {
+    width: 56px;
+    height: 56px;
   }
 
   .login-form {
