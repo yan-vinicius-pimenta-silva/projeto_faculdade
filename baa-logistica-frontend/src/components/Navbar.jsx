@@ -30,6 +30,11 @@ const Navbar = () => {
     return initials.trim().toUpperCase() || 'U';
   }, [user?.nome]);
 
+  const userAvatar =
+    typeof user?.avatar === 'string' && user.avatar.trim() !== '' ? user.avatar : null;
+
+  const avatarLabel = user?.nome ? `Foto de perfil de ${user.nome}` : 'Foto de perfil do usuário';
+
   const handleLogout = () => {
     if (window.confirm('Deseja realmente sair do sistema?')) {
       logout();
@@ -67,6 +72,20 @@ const Navbar = () => {
         </nav>
 
         <div className="app-navbar__profile">
+          <div
+            className="app-navbar__avatar"
+            role={userAvatar ? undefined : 'img'}
+            aria-label={userAvatar ? undefined : avatarLabel}
+            title={avatarLabel}
+          >
+            {userAvatar ? (
+              <img src={userAvatar} alt={avatarLabel} />
+            ) : (
+              <span className="app-navbar__avatar-initials" aria-hidden="true">
+                {userInitials}
+              </span>
+            )}
+          </div>
           <div className="app-navbar__user">
             <span className="app-navbar__user-name">{user?.nome || 'Usuário'}</span>
             <span className="app-navbar__user-role">{user?.perfil || 'Usuário'}</span>
