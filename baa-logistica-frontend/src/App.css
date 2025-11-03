@@ -1,8 +1,28 @@
 .app-content {
+  position: relative;
   min-height: calc(100vh - 72px);
-  padding: clamp(24px, 4vw, 40px);
-  background: var(--color-background);
-  transition: background var(--transition-base);
+  padding: clamp(28px, 5vw, 48px);
+  background:
+    linear-gradient(135deg, rgba(19, 49, 92, 0.24) 0%, rgba(19, 64, 116, 0.08) 45%, transparent 80%),
+    var(--color-background);
+  border-top: 1px solid rgba(11, 37, 69, 0.06);
+  transition: background var(--transition-base), border-color var(--transition-base);
+}
+
+.app-content::before {
+  content: '';
+  position: absolute;
+  inset: clamp(12px, 3vw, 24px);
+  border-radius: 28px;
+  background: linear-gradient(160deg, rgba(141, 169, 196, 0.18), rgba(238, 244, 237, 0.35));
+  filter: blur(0);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.app-content > * {
+  position: relative;
+  z-index: 1;
 }
 
 .app-content > *:first-child {
@@ -12,5 +32,10 @@
 @media (max-width: 768px) {
   .app-content {
     padding: 24px 20px 32px;
+  }
+
+  .app-content::before {
+    inset: 16px 12px;
+    border-radius: 22px;
   }
 }

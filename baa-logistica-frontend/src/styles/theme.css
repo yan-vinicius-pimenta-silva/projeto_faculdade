@@ -1,17 +1,17 @@
 :root {
   --font-sans: 'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-  --color-background: #f3f6fc;
-  --color-background-strong: #e8ecf7;
+  --color-background: #eef4ed;
+  --color-background-strong: #d7e3dc;
   --color-surface: #ffffff;
-  --color-surface-alt: #f7f9fe;
-  --color-border: #e1e7f0;
-  --color-border-strong: #d2d8e4;
-  --color-text: #1d2433;
-  --color-text-muted: #5f6b7c;
-  --color-text-subtle: #8c95a5;
-  --color-primary: #2d6bff;
-  --color-primary-dark: #1f4fd4;
-  --color-primary-soft: rgba(45, 107, 255, 0.12);
+  --color-surface-alt: #f4f8f2;
+  --color-border: #d3dee5;
+  --color-border-strong: #b9c8d4;
+  --color-text: #0b2545;
+  --color-text-muted: #335375;
+  --color-text-subtle: #5b7695;
+  --color-primary: #134074;
+  --color-primary-dark: #0b2545;
+  --color-primary-soft: rgba(19, 64, 116, 0.14);
   --color-success: #16a34a;
   --color-success-soft: rgba(22, 163, 74, 0.16);
   --color-warning: #f59e0b;
@@ -20,10 +20,10 @@
   --color-info-soft: rgba(37, 99, 235, 0.14);
   --color-danger: #ef4444;
   --color-danger-soft: rgba(239, 68, 68, 0.18);
-  --shadow-xs: 0 4px 14px rgba(15, 23, 42, 0.08);
-  --shadow-sm: 0 16px 35px rgba(15, 23, 42, 0.14);
-  --shadow-md: 0 30px 60px rgba(15, 23, 42, 0.18);
-  --focus-ring: 0 0 0 4px rgba(45, 107, 255, 0.18);
+  --shadow-xs: 0 4px 14px rgba(11, 37, 69, 0.08);
+  --shadow-sm: 0 16px 35px rgba(11, 37, 69, 0.14);
+  --shadow-md: 0 30px 60px rgba(11, 37, 69, 0.18);
+  --focus-ring: 0 0 0 4px rgba(141, 169, 196, 0.45);
   --transition-base: 180ms ease;
 }
 
@@ -45,6 +45,10 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-image:
+    radial-gradient(circle at top left, rgba(141, 169, 196, 0.35), transparent 55%),
+    radial-gradient(circle at bottom right, rgba(19, 49, 92, 0.2), transparent 60%);
+  background-attachment: fixed;
   transition: background-color var(--transition-base), color var(--transition-base);
 }
 
