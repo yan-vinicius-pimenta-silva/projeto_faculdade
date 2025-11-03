@@ -9,6 +9,7 @@ const NAV_LINKS = [
   { to: '/clientes', label: 'Clientes' },
   { to: '/cargas', label: 'Cargas' },
   { to: '/viagens', label: 'Viagens' },
+  { to: '/usuarios', label: 'Usuários' }
 ];
 
 const Navbar = () => {
