@@ -18,6 +18,16 @@ const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
+  const isAdmin = (user?.perfil || '').toLowerCase() === 'admin';
+
+  const availableNavLinks = useMemo(() => {
+    if (isAdmin) {
+      return NAV_LINKS;
+    }
+
+    return NAV_LINKS.filter((link) => link.to !== '/usuarios');
+  }, [isAdmin]);
+
   const userInitials = useMemo(() => {
     if (!user?.nome) return 'U';
     const [first = '', second = ''] = user.nome.split(' ');
@@ -52,7 +62,7 @@ const Navbar = () => {
         </NavLink>
 
         <nav className="app-navbar__nav" aria-label="Navegação principal">
-          {NAV_LINKS.map(({ to, label, exact }) => (
+          {availableNavLinks.map(({ to, label, exact }) => (
             <NavLink
               key={to}
               to={to}
