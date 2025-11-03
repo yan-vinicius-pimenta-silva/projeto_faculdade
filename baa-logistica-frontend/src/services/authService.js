@@ -46,13 +46,12 @@ const authService = {
   },
 
   // Atualizar dados do usuário salvo
-  updateCurrentUser(updates = {}, options = {}) {
-    const currentUser = this.getCurrentUser() || {};
-    const shouldMerge = options.merge ?? true;
-
-    const updatedUser = shouldMerge
-      ? { ...currentUser, ...updates }
-      : (typeof updates === 'object' && updates !== null ? updates : currentUser);
+  updateCurrentUser(updates = {}) {
+    const currentUser = this.getCurrentUser();
+    const updatedUser = {
+      ...(currentUser || {}),
+      ...updates
+    };
 
     localStorage.setItem('user', JSON.stringify(updatedUser));
     return updatedUser;

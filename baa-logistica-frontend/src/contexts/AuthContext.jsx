@@ -44,19 +44,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateUserProfile = (updates) => {
-    if (!updates || typeof updates !== 'object') {
-      return user;
-    }
-
-    const baseUser = user || authService.getCurrentUser() || {};
-    const updatedUser = {
-      ...baseUser,
-      ...updates
-    };
-
+    const updatedUser = authService.updateCurrentUser(updates);
     setUser(updatedUser);
-    authService.updateCurrentUser(updatedUser, { merge: false });
-
     return updatedUser;
   };
 
