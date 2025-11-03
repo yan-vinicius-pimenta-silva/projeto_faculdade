@@ -34,3 +34,15 @@ C:\Users\Yan\Desktop\new_folder\projeto_faculdade\baa-logistica-backend\BAALogis
 C:\Users\Yan\Desktop\new_folder\projeto_faculdade\baa-logistica-backend\BAALogistica.Domain\obj\Debug\net8.0\refint\BAALogistica.Domain.dll
 C:\Users\Yan\Desktop\new_folder\projeto_faculdade\baa-logistica-backend\BAALogistica.Domain\obj\Debug\net8.0\BAALogistica.Domain.pdb
 C:\Users\Yan\Desktop\new_folder\projeto_faculdade\baa-logistica-backend\BAALogistica.Domain\obj\Debug\net8.0\ref\BAALogistica.Domain.dll
+C:\Users\yan.silva\Desktop\projeto_faculdade\projeto_faculdade\baa-logistica-backend\BAALogistica.Domain\bin\Debug\net8.0\BAALogistica.Domain.deps.json
+C:\Users\yan.silva\Desktop\projeto_faculdade\projeto_faculdade\baa-logistica-backend\BAALogistica.Domain\bin\Debug\net8.0\BAALogistica.Domain.dll
+C:\Users\yan.silva\Desktop\projeto_faculdade\projeto_faculdade\baa-logistica-backend\BAALogistica.Domain\bin\Debug\net8.0\BAALogistica.Domain.pdb
+C:\Users\yan.silva\Desktop\projeto_faculdade\projeto_faculdade\baa-logistica-backend\BAALogistica.Domain\obj\Debug\net8.0\BAALogistica.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\yan.silva\Desktop\projeto_faculdade\projeto_faculdade\baa-logistica-backend\BAALogistica.Domain\obj\Debug\net8.0\BAALogistica.Domain.AssemblyInfoInputs.cache
+C:\Users\yan.silva\Desktop\projeto_faculdade\projeto_faculdade\baa-logistica-backend\BAALogistica.Domain\obj\Debug\net8.0\BAALogistica.Domain.AssemblyInfo.cs
+C:\Users\yan.silva\Desktop\projeto_faculdade\projeto_faculdade\baa-logistica-backend\BAALogistica.Domain\obj\Debug\net8.0\BAALogistica.Domain.csproj.CoreCompileInputs.cache
+C:\Users\yan.silva\Desktop\projeto_faculdade\projeto_faculdade\baa-logistica-backend\BAALogistica.Domain\obj\Debug\net8.0\BAALogistica.Domain.sourcelink.json
+C:\Users\yan.silva\Desktop\projeto_faculdade\projeto_faculdade\baa-logistica-backend\BAALogistica.Domain\obj\Debug\net8.0\BAALogistica.Domain.dll
+C:\Users\yan.silva\Desktop\projeto_faculdade\projeto_faculdade\baa-logistica-backend\BAALogistica.Domain\obj\Debug\net8.0\refint\BAALogistica.Domain.dll
+C:\Users\yan.silva\Desktop\projeto_faculdade\projeto_faculdade\baa-logistica-backend\BAALogistica.Domain\obj\Debug\net8.0\BAALogistica.Domain.pdb
+C:\Users\yan.silva\Desktop\projeto_faculdade\projeto_faculdade\baa-logistica-backend\BAALogistica.Domain\obj\Debug\net8.0\ref\BAALogistica.Domain.dll
