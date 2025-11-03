@@ -1,6 +1,8 @@
 // ============================================
 // src/components/common/Modal.jsx
 // ============================================
+import { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
 const SIZE_CLASSES = {
@@ -11,13 +13,30 @@ const SIZE_CLASSES = {
 };
 
 const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
-  if (!isOpen) return null;
+  const previousOverflow = useRef('');
+
+  useEffect(() => {
+    if (!isOpen || typeof document === 'undefined') {
+      return undefined;
+    }
+
+    previousOverflow.current = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = previousOverflow.current || '';
+    };
+  }, [isOpen]);
+
+  if (!isOpen || typeof document === 'undefined') {
+    return null;
+  }
 
   const modalClass = ['modal', SIZE_CLASSES[size] || SIZE_CLASSES.md]
     .filter(Boolean)
     .join(' ');
 
-  return (
+  const modalContent = (
     <>
       <div className="modal-overlay" onClick={onClose} />
       <div className="modal-container" role="dialog" aria-modal="true" aria-labelledby="modal-title">
@@ -35,6 +54,8 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
       </div>
     </>
   );
+
+  return createPortal(modalContent, document.body);
 };
 
 export default Modal;
