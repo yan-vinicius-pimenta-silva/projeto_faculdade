@@ -10,7 +10,8 @@ const NAV_LINKS = [
   { to: '/clientes', label: 'Clientes' },
   { to: '/cargas', label: 'Cargas' },
   { to: '/viagens', label: 'Viagens' },
-  { to: '/usuarios', label: 'Usuários' }
+  { to: '/usuarios', label: 'Usuários' },
+  { to: '/perfil', label: 'Perfil' }
 ];
 
 const Navbar = () => {
@@ -59,8 +60,8 @@ const Navbar = () => {
             <span className="app-navbar__user-role">{user?.perfil || 'Usuário'}</span>
           </div>
           <div className="app-navbar__actions">
-            <NavLink to="/alterar-senha" className="app-navbar__action">
-              🔑 Alterar Senha
+            <NavLink to="/perfil" className="app-navbar__action">
+              ⚙️ Perfil
             </NavLink>
             <button
               type="button"

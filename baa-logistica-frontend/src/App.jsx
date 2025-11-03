@@ -11,6 +11,7 @@ import Clientes from './pages/Clientes';
 import Cargas from './pages/Cargas';
 import Viagens from './pages/Viagens';
 import Usuarios from './pages/Usuarios';
+import Perfil from './pages/Perfil';
 import './App.css';
 
 // Layout com Navbar (para páginas protegidas)
@@ -117,6 +118,17 @@ function App() {
               <PrivateRoute>
                 <PrivateLayout>
                   <AlterarSenha />
+                </PrivateLayout>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/perfil"
+            element={
+              <PrivateRoute>
+                <PrivateLayout>
+                  <Perfil />
                 </PrivateLayout>
               </PrivateRoute>
             }
