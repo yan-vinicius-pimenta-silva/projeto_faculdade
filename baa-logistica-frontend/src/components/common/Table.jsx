@@ -1,46 +1,67 @@
 // ============================================
 // src/components/common/Table.jsx
 // ============================================
-const Table = ({ columns, data, onRowClick }) => {
+const getNestedValue = (object, path) => {
+  if (!object || !path) return undefined;
+
+  return path.split('.').reduce((acc, key) => (acc ? acc[key] : undefined), object);
+};
+
+const Table = ({ columns = [], data = [], onRowClick }) => {
+  const hasData = data.length > 0;
+
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
+    <div className="table-wrapper table-wrapper--scroll">
+      <table className="data-table">
+        <thead>
           <tr>
             {columns.map((column, index) => (
-              <th
-                key={index}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                {column.header}
-              </th>
+              <th key={index}>{column.header}</th>
             ))}
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {data.length === 0 ? (
+        <tbody>
+          {hasData ? (
+            data.map((row, rowIndex) => {
+              const rowClasses = [onRowClick ? 'table-row--clickable' : '']
+                .filter(Boolean)
+                .join(' ');
+
+              return (
+                <tr
+                  key={rowIndex}
+                  className={rowClasses}
+                  onClick={() => onRowClick && onRowClick(row)}
+                >
+                  {columns.map((column, colIndex) => {
+                    const content = column.render
+                      ? column.render(row)
+                      : column.accessor?.includes('.')
+                        ? getNestedValue(row, column.accessor)
+                        : column.accessor
+                          ? row[column.accessor]
+                          : undefined;
+
+                    const cellValue = content ?? '—';
+                    const cellClasses = [column.align === 'right' ? 'numeric' : '']
+                      .filter(Boolean)
+                      .join(' ');
+
+                    return (
+                      <td key={colIndex} className={cellClasses}>
+                        {cellValue}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })
+          ) : (
             <tr>
-              <td
-                colSpan={columns.length}
-                className="px-6 py-4 text-center text-gray-500"
-              >
+              <td colSpan={columns.length} className="table-empty">
                 Nenhum registro encontrado
               </td>
             </tr>
-          ) : (
-            data.map((row, rowIndex) => (
-              <tr
-                key={rowIndex}
-                onClick={() => onRowClick && onRowClick(row)}
-                className={onRowClick ? 'hover:bg-gray-50 cursor-pointer' : ''}
-              >
-                {columns.map((column, colIndex) => (
-                  <td key={colIndex} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {column.render ? column.render(row) : row[column.accessor]}
-                  </td>
-                ))}
-              </tr>
-            ))
           )}
         </tbody>
       </table>

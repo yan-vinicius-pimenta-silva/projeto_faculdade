@@ -10,17 +10,18 @@ import Veiculos from './pages/Veiculos';
 import Clientes from './pages/Clientes';
 import Cargas from './pages/Cargas';
 import Viagens from './pages/Viagens';
+import Usuarios from './pages/Usuarios';
 import './App.css';
 
 // Layout com Navbar (para páginas protegidas)
 const PrivateLayout = ({ children }) => {
   return (
-    <>
+    <div className="app-shell">
       <Navbar />
-      <div className="app-content">
-        {children}
-      </div>
-    </>
+      <main className="app-shell__content">
+        <div className="app-content">{children}</div>
+      </main>
+    </div>
   );
 };
 
@@ -94,6 +95,17 @@ function App() {
               <PrivateRoute>
                 <PrivateLayout>
                   <Viagens />
+                </PrivateLayout>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/usuarios"
+            element={
+              <PrivateRoute allowedRoles={['Admin']}>
+                <PrivateLayout>
+                  <Usuarios />
                 </PrivateLayout>
               </PrivateRoute>
             }
