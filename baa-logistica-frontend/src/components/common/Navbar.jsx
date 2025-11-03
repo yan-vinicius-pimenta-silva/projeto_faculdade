@@ -1,13 +1,10 @@
-// ============================================
-// src/components/common/Navbar.jsx
-// ============================================
 import { Bell, User } from 'lucide-react';
 
 const Navbar = () => {
   return (
-    <header className="bg-white shadow-sm">
+    <header className="bg-white shadow-sm relative z-10 border-b border-gray-200">
       <div className="flex items-center justify-between p-4">
-        <h2 className="text-2xl font-semibold text-gray-800">
+        <h2 className="text-xl font-semibold text-gray-800">
           Sistema de Gestão de Cargas e Frota
         </h2>
         <div className="flex items-center space-x-4">

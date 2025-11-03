@@ -3,7 +3,12 @@
   top: 0;
   z-index: 100;
   backdrop-filter: blur(12px);
-  background: linear-gradient(120deg, rgba(11, 37, 69, 0.92) 0%, rgba(19, 49, 92, 0.9) 55%, rgba(19, 64, 116, 0.88) 100%);
+  background: linear-gradient(
+    120deg,
+    rgba(11, 37, 69, 0.92) 0%,
+    rgba(19, 49, 92, 0.9) 55%,
+    rgba(19, 64, 116, 0.88) 100%
+  );
   border-bottom: 1px solid rgba(141, 169, 196, 0.35);
   box-shadow: 0 14px 40px rgba(11, 37, 69, 0.28);
 }
@@ -18,40 +23,54 @@
   max-width: 1180px;
   margin: 0 auto;
   color: #eef4ed;
+  position: relative;
+  z-index: 2;
 }
 
+/* Brand (logo + text) */
 .app-navbar__brand {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 12px;
   font-weight: 700;
   color: #eef4ed;
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  position: relative;
+  z-index: 3;
+  margin-right: 48px; /* spacing between brand and nav */
 }
 
-.app-navbar__brand-icon {
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
-  background: rgba(141, 169, 196, 0.25);
-  font-size: 1.2rem;
-  color: #eef4ed;
-  box-shadow: inset 0 0 0 1px rgba(141, 169, 196, 0.35);
+.app-navbar__brand-logo {
+  height: 46px;
+  width: auto;
+  border-radius: 10px;
+  object-fit: contain;
+  background: rgba(141, 169, 196, 0.18);
+  padding: 4px;
+  box-shadow: inset 0 0 0 1px rgba(141, 169, 196, 0.3);
+  flex-shrink: 0;
 }
 
 .app-navbar__brand-text {
-  display: inline-block;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  position: relative;
+  top: 1px;
 }
 
+/* Navigation */
 .app-navbar__nav {
   display: flex;
   align-items: center;
   gap: 6px;
   flex: 1;
   justify-content: center;
+  position: relative;
+  z-index: 1;
 }
 
 .app-navbar__link {
@@ -77,10 +96,13 @@
   box-shadow: 0 10px 20px rgba(11, 37, 69, 0.26);
 }
 
+/* Profile section */
 .app-navbar__profile {
   display: flex;
   align-items: center;
   gap: 18px;
+  position: relative;
+  z-index: 2;
 }
 
 .app-navbar__user {
@@ -141,6 +163,7 @@
   box-shadow: 0 18px 32px rgba(8, 22, 36, 0.28);
 }
 
+/* Responsive behavior */
 @media (max-width: 1100px) {
   .app-navbar__inner {
     flex-wrap: wrap;

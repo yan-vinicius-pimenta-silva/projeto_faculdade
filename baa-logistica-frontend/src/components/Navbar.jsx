@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import './Navbar.css';
+import BaaLogisticaLogo from '../assets/images/baa-logistica-logo.png';
 
 const NAV_LINKS = [
   { to: '/', label: 'Dashboard', exact: true },
@@ -27,7 +28,11 @@ const Navbar = () => {
     <header className="app-navbar">
       <div className="app-navbar__inner">
         <NavLink to="/" className="app-navbar__brand">
-          <span className="app-navbar__brand-icon">🚛</span>
+          <img
+            src={BaaLogisticaLogo}
+            alt="B.A.A Logística Logo"
+            className="app-navbar__brand-logo"
+          />
           <span className="app-navbar__brand-text">B.A.A Logística</span>
         </NavLink>
 
@@ -38,7 +43,9 @@ const Navbar = () => {
               to={to}
               end={Boolean(exact)}
               className={({ isActive }) =>
-                ['app-navbar__link', isActive ? 'is-active' : ''].filter(Boolean).join(' ')
+                ['app-navbar__link', isActive ? 'is-active' : '']
+                  .filter(Boolean)
+                  .join(' ')
               }
             >
               {label}
@@ -55,7 +62,11 @@ const Navbar = () => {
             <NavLink to="/alterar-senha" className="app-navbar__action">
               🔑 Alterar Senha
             </NavLink>
-            <button type="button" className="app-navbar__logout" onClick={handleLogout}>
+            <button
+              type="button"
+              className="app-navbar__logout"
+              onClick={handleLogout}
+            >
               🚪 Sair
             </button>
           </div>
