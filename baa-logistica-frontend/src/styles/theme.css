@@ -640,18 +640,18 @@ textarea.form-field__control {
   position: fixed;
   inset: 0;
   background: rgba(15, 23, 42, 0.45);
-  z-index: 90;
+  z-index: 190;
   backdrop-filter: blur(6px);
 }
 
 .modal-container {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: 200;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 24px;
+  padding: clamp(96px, 12vh, 140px) 24px 24px;
 }
 
 .modal {
@@ -743,7 +743,7 @@ textarea.form-field__control {
   }
 
   .modal-container {
-    padding: 16px;
+    padding: 88px 16px 16px;
   }
 
   .modal {
