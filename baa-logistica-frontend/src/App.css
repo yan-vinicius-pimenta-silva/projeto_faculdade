@@ -1,31 +1,16 @@
-/* App Container */
-.App {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
-}
-
-/* App Content (below navbar) */
 .app-content {
-  flex: 1;
-  overflow-y: auto;
-  background-color: #f5f7fa;
-  padding: 24px;
+  min-height: calc(100vh - 72px);
+  padding: clamp(24px, 4vw, 40px);
+  background: var(--color-background);
+  transition: background var(--transition-base);
 }
 
-/* Page Container */
-.page-container {
-  max-width: 1400px;
-  margin: 0 auto;
+.app-content > *:first-child {
+  margin-top: 0;
 }
 
-/* Loading State */
-.loading-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  font-size: 18px;
-  color: #6c757d;
+@media (max-width: 768px) {
+  .app-content {
+    padding: 24px 20px 32px;
+  }
 }

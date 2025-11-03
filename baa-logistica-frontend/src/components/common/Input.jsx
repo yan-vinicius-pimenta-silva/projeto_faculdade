@@ -10,13 +10,20 @@ const Input = ({
   placeholder = '',
   required = false,
   error = '',
-  className = ''
+  className = '',
+  ...rest
 }) => {
+  const wrapperClass = ['form-field', className].filter(Boolean).join(' ');
+  const controlClass = ['form-field__control', error ? 'form-field__control--error' : '']
+    .filter(Boolean)
+    .join(' ');
+
   return (
-    <div className={`mb-4 ${className}`}>
+    <div className={wrapperClass}>
       {label && (
-        <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
-          {label} {required && <span className="text-red-500">*</span>}
+        <label htmlFor={name} className="form-field__label">
+          {label}
+          {required && <span className="form-field__required">*</span>}
         </label>
       )}
       <input
@@ -27,10 +34,10 @@ const Input = ({
         onChange={onChange}
         placeholder={placeholder}
         required={required}
-        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 ${error ? 'border-red-500' : 'border-gray-300'
-          }`}
+        className={controlClass}
+        {...rest}
       />
-      {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+      {error && <p className="form-field__error">{error}</p>}
     </div>
   );
 };
