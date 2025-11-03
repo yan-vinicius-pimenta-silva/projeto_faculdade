@@ -7,8 +7,6 @@ import Card from '../components/common/Card';
 import Table from '../components/common/Table';
 import StatusBadge from '../components/common/StatusBadge';
 import { dashboardService } from '../services/dashboardService';
-import { format } from 'date-fns';
-import './Dashboard.css';
 
 const Dashboard = () => {
   const [estatisticas, setEstatisticas] = useState(null);
@@ -61,108 +59,91 @@ const Dashboard = () => {
     { header: 'Cliente', accessor: 'cliente' },
     {
       header: 'Peso',
-      render: (row) => `${row.pesoCarga.toFixed(2)} kg`
+      render: (row) => (row.pesoCarga ? `${row.pesoCarga.toFixed(2)} kg` : '—'),
+      align: 'right'
     },
   ];
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-xl text-gray-600">Carregando...</div>
-      </div>
-    );
+    return <div className="loading-state">Carregando...</div>;
   }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
+    <div className="page-shell">
+      <div className="page-header">
+        <div className="page-header__title-group">
+          <h1 className="page-title">Dashboard</h1>
+          <p className="page-subtitle">Visão geral das operações logísticas</p>
+        </div>
+      </div>
 
-      {/* Cards de Estatísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="border-l-4 border-blue-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Motoristas Ativos</p>
-              <p className="text-2xl font-bold text-gray-800">
-                {estatisticas?.motoristas.ativos || 0}
-              </p>
-              <p className="text-xs text-gray-500">
-                de {estatisticas?.motoristas.total || 0} total
-              </p>
-            </div>
-            <div className="p-3 bg-blue-100 rounded-full">
-              <Users className="text-blue-600" size={24} />
-            </div>
+      <div className="stat-grid">
+        <Card className="stat-card stat-card--drivers">
+          <div className="stat-card__content">
+            <span className="stat-card__label">Motoristas ativos</span>
+            <span className="stat-card__value">{estatisticas?.motoristas.ativos || 0}</span>
+            <span className="stat-card__meta">
+              de {estatisticas?.motoristas.total || 0} cadastrados
+            </span>
+          </div>
+          <div className="stat-card__icon">
+            <Users size={26} />
           </div>
         </Card>
 
-        <Card className="border-l-4 border-green-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Veículos Disponíveis</p>
-              <p className="text-2xl font-bold text-gray-800">
-                {estatisticas?.veiculos.disponiveis || 0}
-              </p>
-              <p className="text-xs text-gray-500">
-                {estatisticas?.veiculos.emViagem || 0} em viagem
-              </p>
-            </div>
-            <div className="p-3 bg-green-100 rounded-full">
-              <Truck className="text-green-600" size={24} />
-            </div>
+        <Card className="stat-card stat-card--vehicles">
+          <div className="stat-card__content">
+            <span className="stat-card__label">Veículos disponíveis</span>
+            <span className="stat-card__value">{estatisticas?.veiculos.disponiveis || 0}</span>
+            <span className="stat-card__meta">
+              {estatisticas?.veiculos.emViagem || 0} em viagem
+            </span>
+          </div>
+          <div className="stat-card__icon">
+            <Truck size={26} />
           </div>
         </Card>
 
-        <Card className="border-l-4 border-yellow-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Cargas em Transporte</p>
-              <p className="text-2xl font-bold text-gray-800">
-                {estatisticas?.cargas.emTransporte || 0}
-              </p>
-              <p className="text-xs text-gray-500">
-                {estatisticas?.cargas.aguardando || 0} aguardando
-              </p>
-            </div>
-            <div className="p-3 bg-yellow-100 rounded-full">
-              <Package className="text-yellow-600" size={24} />
-            </div>
+        <Card className="stat-card stat-card--cargo">
+          <div className="stat-card__content">
+            <span className="stat-card__label">Cargas em transporte</span>
+            <span className="stat-card__value">{estatisticas?.cargas.emTransporte || 0}</span>
+            <span className="stat-card__meta">
+              {estatisticas?.cargas.aguardando || 0} aguardando expedição
+            </span>
+          </div>
+          <div className="stat-card__icon">
+            <Package size={26} />
           </div>
         </Card>
 
-        <Card className="border-l-4 border-purple-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Viagens em Andamento</p>
-              <p className="text-2xl font-bold text-gray-800">
-                {estatisticas?.viagens.emAndamento || 0}
-              </p>
-              <p className="text-xs text-gray-500">
-                {estatisticas?.viagens.planejadas || 0} planejadas
-              </p>
-            </div>
-            <div className="p-3 bg-purple-100 rounded-full">
-              <MapPin className="text-purple-600" size={24} />
-            </div>
+        <Card className="stat-card stat-card--trips">
+          <div className="stat-card__content">
+            <span className="stat-card__label">Viagens em andamento</span>
+            <span className="stat-card__value">{estatisticas?.viagens.emAndamento || 0}</span>
+            <span className="stat-card__meta">
+              {estatisticas?.viagens.planejadas || 0} planejadas
+            </span>
+          </div>
+          <div className="stat-card__icon">
+            <MapPin size={26} />
           </div>
         </Card>
       </div>
 
-      {/* Viagens Ativas */}
-      <Card title="Viagens Ativas">
+      <Card title="Viagens ativas" subtitle="Acompanhe as operações em tempo real">
         {viagensAtivas.length > 0 ? (
           <Table columns={viagensColumns} data={viagensAtivas} />
         ) : (
-          <p className="text-center text-gray-500 py-4">Nenhuma viagem ativa no momento</p>
+          <div className="empty-state">Nenhuma viagem ativa no momento</div>
         )}
       </Card>
 
-      {/* Últimas Cargas */}
-      <Card title="Últimas Cargas Cadastradas">
+      <Card title="Últimas cargas cadastradas" subtitle="Registro das operações recentes">
         {ultimasCargas.length > 0 ? (
           <Table columns={cargasColumns} data={ultimasCargas} />
         ) : (
-          <p className="text-center text-gray-500 py-4">Nenhuma carga cadastrada</p>
+          <div className="empty-state">Nenhuma carga cadastrada</div>
         )}
       </Card>
     </div>
