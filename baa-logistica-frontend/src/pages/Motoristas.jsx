@@ -11,254 +11,64 @@ import Select from '../components/common/Select';
 import Modal from '../components/common/Modal';
 import StatusBadge from '../components/common/StatusBadge';
 import { motoristasService } from '../services/motoristasService';
-import { format } from 'date-fns';
+import { format, addDays, subYears } from 'date-fns';
+import {
+  sanitizeNomeCompleto,
+  sanitizeEndereco,
+  sanitizeObservacoes,
+  sanitizeEmail,
+  maskCPF,
+  maskCNH,
+  maskTelefone,
+  formatTelefoneToE164,
+  sanitizeCPF,
+  sanitizeCNH,
+  sanitizeTelefone,
+  sanitizeDateInput
+} from '../utils/sanitization';
+import {
+  isValidCPF,
+  isValidCNH,
+  isValidTelefone,
+  hasMinimumAge,
+  isFutureDate,
+  isPastOrToday
+} from '../utils/validators';
 
 // ============================================
-// FUNÇÕES UTILITÁRIAS DE CPF
+// FUNÇÕES UTILITÁRIAS DE FORMATAÇÃO E VALIDAÇÃO
 // ============================================
 
-/**
- * Remove caracteres não numéricos do CPF
- */
-const limparCPF = (cpf) => {
-  return cpf.replace(/\D/g, '');
-};
-
-/**
- * Formata CPF com máscara: 000.000.000-00
- */
-const formatarCPF = (cpf) => {
-  const numeros = limparCPF(cpf);
-
-  if (numeros.length <= 3) return numeros;
-  if (numeros.length <= 6) return `${numeros.slice(0, 3)}.${numeros.slice(3)}`;
-  if (numeros.length <= 9) return `${numeros.slice(0, 3)}.${numeros.slice(3, 6)}.${numeros.slice(6)}`;
-  return `${numeros.slice(0, 3)}.${numeros.slice(3, 6)}.${numeros.slice(6, 9)}-${numeros.slice(9, 11)}`;
-};
-
-/**
- * Valida CPF seguindo o algoritmo oficial
- */
+const limparCPF = (value) => sanitizeCPF(value);
+const formatarCPF = (value) => maskCPF(value);
 const validarCPF = (cpf) => {
-  const cpfLimpo = limparCPF(cpf);
-
-  // Verifica se tem 11 dígitos
-  if (cpfLimpo.length !== 11) {
-    return { valido: false, mensagem: 'CPF deve conter 11 dígitos' };
-  }
-
-  // Verifica se não é uma sequência repetida
-  if (/^(\d)\1{10}$/.test(cpfLimpo)) {
-    return { valido: false, mensagem: 'CPF não pode ser uma sequência repetida' };
-  }
-
-  // Calcula o primeiro dígito verificador
-  let soma = 0;
-  for (let i = 0; i < 9; i++) {
-    soma += parseInt(cpfLimpo.charAt(i)) * (10 - i);
-  }
-  let resto = soma % 11;
-  const digito1 = resto < 2 ? 0 : 11 - resto;
-
-  // Verifica o primeiro dígito verificador
-  if (digito1 !== parseInt(cpfLimpo.charAt(9))) {
-    return { valido: false, mensagem: 'CPF inválido' };
-  }
-
-  // Calcula o segundo dígito verificador
-  soma = 0;
-  for (let i = 0; i < 10; i++) {
-    soma += parseInt(cpfLimpo.charAt(i)) * (11 - i);
-  }
-  resto = soma % 11;
-  const digito2 = resto < 2 ? 0 : 11 - resto;
-
-  // Verifica o segundo dígito verificador
-  if (digito2 !== parseInt(cpfLimpo.charAt(10))) {
-    return { valido: false, mensagem: 'CPF inválido' };
-  }
-
-  return { valido: true, mensagem: '' };
+  const valido = isValidCPF(cpf);
+  return { valido, mensagem: valido ? '' : 'CPF inválido' };
 };
 
-// ============================================
-// FUNÇÕES UTILITÁRIAS DE CNH
-// ============================================
-
-/**
- * Remove caracteres não numéricos da CNH
- */
-const limparCNH = (cnh) => {
-  return cnh.replace(/\D/g, '');
-};
-
-/**
- * Formata CNH com máscara: 00000000000
- */
-const formatarCNH = (cnh) => {
-  const numeros = limparCNH(cnh);
-  return numeros.slice(0, 11);
-};
-
-/**
- * Valida CNH seguindo o algoritmo oficial
- */
+const limparCNH = (value) => sanitizeCNH(value);
+const formatarCNH = (value) => maskCNH(value);
 const validarCNH = (cnh) => {
-  const cnhLimpa = limparCNH(cnh);
-
-  // Verifica se tem 11 dígitos
-  if (cnhLimpa.length !== 11) {
-    return { valido: false, mensagem: 'CNH deve conter 11 dígitos' };
-  }
-
-  // Verifica se não é uma sequência repetida
-  if (/^(\d)\1{10}$/.test(cnhLimpa)) {
-    return { valido: false, mensagem: 'CNH não pode ser uma sequência repetida' };
-  }
-
-  // Calcula o primeiro dígito verificador
-  let soma = 0;
-  let peso = 9;
-  for (let i = 0; i < 9; i++) {
-    soma += parseInt(cnhLimpa.charAt(i)) * peso;
-    peso--;
-  }
-
-  let resto = soma % 11;
-  let digito1 = resto >= 10 ? 0 : resto;
-
-  // Se resto = 10, soma recebe +2 para o próximo cálculo
-  if (resto === 10) {
-    soma += 2;
-  }
-
-  // Calcula o segundo dígito verificador
-  soma = 0;
-  peso = 1;
-  for (let i = 0; i < 9; i++) {
-    soma += parseInt(cnhLimpa.charAt(i)) * peso;
-    peso++;
-  }
-
-  // Adiciona o primeiro dígito verificador
-  soma += digito1 * 9;
-
-  resto = soma % 11;
-  let digito2 = resto >= 10 ? 0 : resto;
-
-  // Verifica os dígitos verificadores
-  if (digito1 !== parseInt(cnhLimpa.charAt(9)) || digito2 !== parseInt(cnhLimpa.charAt(10))) {
-    return { valido: false, mensagem: 'CNH inválida' };
-  }
-
-  return { valido: true, mensagem: '' };
+  const valido = isValidCNH(cnh);
+  return { valido, mensagem: valido ? '' : 'CNH inválida' };
 };
 
-// ============================================
-// FUNÇÕES UTILITÁRIAS DE TELEFONE
-// ============================================
-
-/**
- * Remove caracteres não numéricos do telefone
- */
-const limparTelefone = (telefone) => {
-  return telefone.replace(/\D/g, '');
-};
-
-/**
- * Formata telefone no padrão brasileiro: +55 (00) 00000-0000
- */
-const formatarTelefone = (telefone) => {
-  const numeros = limparTelefone(telefone);
-
-  // Remove o +55 se estiver presente no início
-  const numerosSemCodigo = numeros.startsWith('55') ? numeros.slice(2) : numeros;
-
-  if (numerosSemCodigo.length <= 2) return numerosSemCodigo;
-  if (numerosSemCodigo.length <= 7) return `(${numerosSemCodigo.slice(0, 2)}) ${numerosSemCodigo.slice(2)}`;
-  if (numerosSemCodigo.length <= 11) {
-    const ddd = numerosSemCodigo.slice(0, 2);
-    const numero = numerosSemCodigo.slice(2);
-    if (numero.length <= 4) {
-      return `(${ddd}) ${numero}`;
-    } else if (numero.length <= 8) {
-      return `(${ddd}) ${numero.slice(0, 4)}-${numero.slice(4)}`;
-    } else {
-      return `(${ddd}) ${numero.slice(0, 5)}-${numero.slice(5)}`;
-    }
-  }
-  return telefone;
-};
-
-/**
- * Converte telefone brasileiro para formato E.164: +55DDNNNNNNNNN
- */
-const converterParaE164 = (telefone) => {
-  const numeros = limparTelefone(telefone);
-
-  // Se já começa com 55, assume que está correto
-  if (numeros.startsWith('55') && numeros.length >= 12) {
-    return `+${numeros}`;
-  }
-
-  // Adiciona o código do Brasil +55
-  if (numeros.length >= 10) {
-    return `+55${numeros}`;
-  }
-
-  return null;
-};
-
-/**
- * Valida telefone brasileiro (DDD + número de 8 ou 9 dígitos)
- */
+const limparTelefone = (value) => sanitizeTelefone(value);
+const formatarTelefone = (value) => maskTelefone(value);
+const converterParaE164 = (value) => formatTelefoneToE164(value);
 const validarTelefone = (telefone) => {
-  if (!telefone || telefone.trim() === '') {
-    return { valido: true, mensagem: '' }; // Telefone é opcional
-  }
-
-  const numeros = limparTelefone(telefone);
-
-  // Remove +55 se presente
-  const numerosSemCodigo = numeros.startsWith('55') ? numeros.slice(2) : numeros;
-
-  // Deve ter 10 (fixo) ou 11 (celular) dígitos
-  if (numerosSemCodigo.length < 10 || numerosSemCodigo.length > 11) {
-    return { valido: false, mensagem: 'Telefone deve ter 10 ou 11 dígitos (DDD + número)' };
-  }
-
-  // DDD deve ser válido (entre 11 e 99)
-  const ddd = parseInt(numerosSemCodigo.slice(0, 2));
-  if (ddd < 11 || ddd > 99) {
-    return { valido: false, mensagem: 'DDD inválido' };
-  }
-
-  // Se tem 11 dígitos, deve começar com 9 (celular)
-  if (numerosSemCodigo.length === 11) {
-    const primeiroDigito = numerosSemCodigo.charAt(2);
-    if (primeiroDigito !== '9') {
-      return { valido: false, mensagem: 'Celular deve começar com 9' };
-    }
-  }
-
-  return { valido: true, mensagem: '' };
+  const valido = isValidTelefone(telefone);
+  return {
+    valido,
+    mensagem: valido ? '' : 'Telefone deve ter DDD válido e 10 ou 11 dígitos'
+  };
 };
+
+const limparEmail = (email) => sanitizeEmail(email);
 
 // ============================================
 // FUNÇÕES UTILITÁRIAS DE E-MAIL
 // ============================================
-
-/**
- * Remove caracteres proibidos do e-mail
- * Permite apenas caracteres válidos segundo RFC 5322:
- * - Letras (a-z, A-Z)
- * - Números (0-9)
- * - Caracteres especiais permitidos: . @ ! # $ % & ' * + - / = ? ^ _ ` { | } ~
- */
-const limparEmail = (email) => {
-  // Mantém apenas caracteres permitidos em e-mails segundo RFC 5322
-  return email.replace(/[^a-zA-Z0-9.@!#$%&'*+\-/=?^_`{|}~]/g, '');
-};
 
 /**
  * Valida e-mail seguindo RFC 5321 / RFC 5322
@@ -316,6 +126,9 @@ const validarEmail = (email) => {
 // ============================================
 
 const Motoristas = () => {
+  const todayISO = format(new Date(), 'yyyy-MM-dd');
+  const tomorrowISO = format(addDays(new Date(), 1), 'yyyy-MM-dd');
+  const maxNascimentoISO = format(subYears(new Date(), 18), 'yyyy-MM-dd');
   const [motoristas, setMotoristas] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -336,7 +149,7 @@ const Motoristas = () => {
     email: '',
     endereco: '',
     dataNascimento: '',
-    dataAdmissao: '',
+    dataAdmissao: todayISO,
     status: 'Ativo',
     observacoes: '',
   });
@@ -363,18 +176,18 @@ const Motoristas = () => {
     if (motorista) {
       setEditingMotorista(motorista);
       setFormData({
-        nome: motorista.nome || '',
-        cpf: motorista.cpf || '',
-        cnh: motorista.cnh || '',
+        nome: sanitizeNomeCompleto(motorista.nome || ''),
+        cpf: maskCPF(motorista.cpf || ''),
+        cnh: maskCNH(motorista.cnh || ''),
         categoriaCNH: motorista.categoriaCNH || '',
         validadeCNH: motorista.validadeCNH ? format(new Date(motorista.validadeCNH), 'yyyy-MM-dd') : '',
-        telefone: motorista.telefone || '',
-        email: motorista.email || '',
-        endereco: motorista.endereco || '',
+        telefone: motorista.telefone ? maskTelefone(motorista.telefone) : '',
+        email: sanitizeEmail(motorista.email || ''),
+        endereco: sanitizeEndereco(motorista.endereco || ''),
         dataNascimento: motorista.dataNascimento ? format(new Date(motorista.dataNascimento), 'yyyy-MM-dd') : '',
         dataAdmissao: motorista.dataAdmissao ? format(new Date(motorista.dataAdmissao), 'yyyy-MM-dd') : '',
         status: motorista.status || 'Ativo',
-        observacoes: motorista.observacoes || '',
+        observacoes: sanitizeObservacoes(motorista.observacoes || ''),
       });
     } else {
       setEditingMotorista(null);
@@ -388,7 +201,7 @@ const Motoristas = () => {
         email: '',
         endereco: '',
         dataNascimento: '',
-        dataAdmissao: format(new Date(), 'yyyy-MM-dd'),
+        dataAdmissao: todayISO,
         status: 'Ativo',
         observacoes: '',
       });
@@ -425,6 +238,18 @@ const Motoristas = () => {
       if (validationErrors.telefone) {
         setValidationErrors(prev => ({ ...prev, telefone: '' }));
       }
+    } else if (name === 'nome') {
+      const nomeLimpo = sanitizeNomeCompleto(value);
+      setFormData(prev => ({ ...prev, [name]: nomeLimpo }));
+      if (validationErrors.nome) {
+        setValidationErrors(prev => ({ ...prev, nome: '' }));
+      }
+    } else if (name === 'endereco') {
+      const enderecoLimpo = sanitizeEndereco(value);
+      setFormData(prev => ({ ...prev, [name]: enderecoLimpo }));
+      if (validationErrors.endereco) {
+        setValidationErrors(prev => ({ ...prev, endereco: '' }));
+      }
     } else if (name === 'email') {
       // Remove caracteres proibidos e limita e-mail a 320 caracteres
       const emailLimpo = limparEmail(value);
@@ -434,9 +259,15 @@ const Motoristas = () => {
         setValidationErrors(prev => ({ ...prev, email: '' }));
       }
     } else if (name === 'observacoes') {
-      // Limita observações a 150 caracteres
-      const observacoesLimitadas = value.slice(0, 150);
+      // Limita observações a 150 caracteres e remove HTML/scripts
+      const observacoesLimitadas = sanitizeObservacoes(value);
       setFormData(prev => ({ ...prev, [name]: observacoesLimitadas }));
+    } else if (name === 'dataNascimento' || name === 'validadeCNH' || name === 'dataAdmissao') {
+      const dataLimpa = sanitizeDateInput(value);
+      setFormData(prev => ({ ...prev, [name]: dataLimpa }));
+      if (validationErrors[name]) {
+        setValidationErrors(prev => ({ ...prev, [name]: '' }));
+      }
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
       // Limpa erro do campo que está sendo editado
@@ -560,6 +391,8 @@ const Motoristas = () => {
     // Valida validade CNH
     if (!formData.validadeCNH) {
       erros.validadeCNH = 'Validade da CNH é obrigatória';
+    } else if (!isFutureDate(formData.validadeCNH)) {
+      erros.validadeCNH = 'Validade da CNH deve ser uma data futura';
     }
 
     // Valida telefone (opcional, mas se preenchido deve ser válido)
@@ -575,6 +408,18 @@ const Motoristas = () => {
       const resultadoEmail = validarEmail(formData.email);
       if (!resultadoEmail.valido) {
         erros.email = resultadoEmail.mensagem;
+      }
+    }
+
+    if (formData.dataNascimento) {
+      if (!hasMinimumAge(formData.dataNascimento, 18)) {
+        erros.dataNascimento = 'Motorista deve ter no mínimo 18 anos';
+      }
+    }
+
+    if (formData.dataAdmissao) {
+      if (!isPastOrToday(formData.dataAdmissao)) {
+        erros.dataAdmissao = 'Data de admissão não pode ser futura';
       }
     }
 
@@ -599,18 +444,18 @@ const Motoristas = () => {
     try {
       // Prepare data - convert empty strings to null for optional fields
       const submitData = {
-        nome: formData.nome,
+        nome: sanitizeNomeCompleto(formData.nome),
         cpf: limparCPF(formData.cpf), // Envia apenas números
         cnh: limparCNH(formData.cnh), // Envia apenas números
         categoriaCNH: formData.categoriaCNH,
         validadeCNH: formData.validadeCNH,
         telefone: formData.telefone ? converterParaE164(formData.telefone) : null, // Formato E.164
-        email: formData.email || null,
-        endereco: formData.endereco || null,
+        email: formData.email ? sanitizeEmail(formData.email) : null,
+        endereco: formData.endereco ? sanitizeEndereco(formData.endereco) : null,
         dataNascimento: formData.dataNascimento || null,
         dataAdmissao: formData.dataAdmissao,
         status: formData.status,
-        observacoes: formData.observacoes || null,
+        observacoes: formData.observacoes ? sanitizeObservacoes(formData.observacoes) : null,
       };
 
       console.log('Dados sendo enviados:', submitData);
@@ -780,6 +625,7 @@ const Motoristas = () => {
               onChange={handleInputChange}
               required
               error={validationErrors.nome}
+              maxLength={100}
             />
 
             <Input
@@ -817,6 +663,7 @@ const Motoristas = () => {
                 { value: 'C', label: 'C' },
                 { value: 'D', label: 'D' },
                 { value: 'E', label: 'E' },
+                { value: 'AB', label: 'AB' },
               ]}
               required
               error={validationErrors.categoriaCNH}
@@ -828,6 +675,7 @@ const Motoristas = () => {
               type="date"
               value={formData.validadeCNH}
               onChange={handleInputChange}
+              min={tomorrowISO}
               required
               error={validationErrors.validadeCNH}
             />
@@ -867,6 +715,8 @@ const Motoristas = () => {
               type="date"
               value={formData.dataNascimento}
               onChange={handleInputChange}
+              max={maxNascimentoISO}
+              error={validationErrors.dataNascimento}
             />
 
             <Input
@@ -875,6 +725,7 @@ const Motoristas = () => {
               type="date"
               value={formData.dataAdmissao}
               onChange={handleInputChange}
+              max={todayISO}
               required
               error={validationErrors.dataAdmissao}
             />
@@ -887,7 +738,6 @@ const Motoristas = () => {
               options={[
                 { value: 'Ativo', label: 'Ativo' },
                 { value: 'Inativo', label: 'Inativo' },
-                { value: 'Férias', label: 'Férias' },
               ]}
               required
             />
@@ -898,6 +748,7 @@ const Motoristas = () => {
             name="endereco"
             value={formData.endereco}
             onChange={handleInputChange}
+            maxLength={120}
           />
 
           <div className="form-field">
