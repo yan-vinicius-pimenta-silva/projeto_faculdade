@@ -26,11 +26,8 @@ export const AuthProvider = ({ children }) => {
   const login = async (loginData, senha) => {
     try {
       const response = await authService.login(loginData, senha);
-      setUser({
-        nome: response.nome,
-        email: response.email,
-        perfil: response.perfil
-      });
+      const updatedUser = authService.getCurrentUser();
+      setUser(updatedUser);
       return response;
     } catch (error) {
       throw error;
@@ -46,6 +43,23 @@ export const AuthProvider = ({ children }) => {
     return !!user && !!authService.getToken();
   };
 
+  const updateUserProfile = (updates) => {
+    if (!updates || typeof updates !== 'object') {
+      return user;
+    }
+
+    const baseUser = user || authService.getCurrentUser() || {};
+    const updatedUser = {
+      ...baseUser,
+      ...updates
+    };
+
+    setUser(updatedUser);
+    authService.updateCurrentUser(updatedUser, { merge: false });
+
+    return updatedUser;
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -53,7 +67,8 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         isAuthenticated,
-        loading
+        loading,
+        updateUserProfile
       }}
     >
       {children}
