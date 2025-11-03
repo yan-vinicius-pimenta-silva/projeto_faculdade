@@ -206,6 +206,18 @@ public class AppDbContext : DbContext
                 Cargo = "Administrador do Sistema",
                 Ativo = true,
                 DataCriacao = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+            },
+            new Usuario
+            {
+                Id = 2,
+                Nome = "Usuário Operacional",
+                Email = "usuario@baalogistica.com.br",
+                Login = "usuario",
+                SenhaHash = BCrypt.Net.BCrypt.HashPassword("usuario123"),
+                Perfil = "Usuario",
+                Cargo = "Analista Operacional",
+                Ativo = true,
+                DataCriacao = new DateTime(2024, 1, 2, 0, 0, 0, DateTimeKind.Utc)
             }
         );
 
