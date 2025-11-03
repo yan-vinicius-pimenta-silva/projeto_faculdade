@@ -9,7 +9,6 @@ const NAV_LINKS = [
   { to: '/clientes', label: 'Clientes' },
   { to: '/cargas', label: 'Cargas' },
   { to: '/viagens', label: 'Viagens' },
-  { to: '/usuarios', label: 'Usuários', roles: ['Admin'] },
 ];
 
 const Navbar = () => {
@@ -32,17 +31,7 @@ const Navbar = () => {
         </NavLink>
 
         <nav className="app-navbar__nav" aria-label="Navegação principal">
-          {NAV_LINKS.filter(({ roles }) => {
-            if (!roles || roles.length === 0) {
-              return true;
-            }
-
-            if (!user?.perfil) {
-              return false;
-            }
-
-            return roles.includes(user.perfil);
-          }).map(({ to, label, exact }) => (
+          {NAV_LINKS.map(({ to, label, exact }) => (
             <NavLink
               key={to}
               to={to}
