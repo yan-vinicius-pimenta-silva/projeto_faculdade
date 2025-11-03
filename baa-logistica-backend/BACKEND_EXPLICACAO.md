@@ -124,7 +124,7 @@ O arquivo `baalogistica.db` fica na raiz do projeto da API e é criado automatic
 
 | Tabela | Finalidade | Campos-chave |
 |--------|------------|--------------|
-| `Usuarios` | Controla autenticação e perfis. Seed inicial cria os usuários `admin` (perfil Admin) e `usuario` (perfil Usuario) com senhas criptografadas via BCrypt. | Índices únicos em `Login` e `Email` garantem unicidade; campos `Perfil`, `Ativo` e `DataUltimoAcesso` alimentam as regras de acesso. |
+| `Usuarios` | Controla autenticação e perfis. Seed inicial cria o usuário `admin` com senha criptografada via BCrypt. | Índices únicos em `Login` e `Email` garantem unicidade; campos `Perfil`, `Ativo` e `DataUltimoAcesso` alimentam as regras de acesso. |
 | `Clientes` | Cadastro de embarcadores/contratantes. | Índices únicos para `CNPJ` e `CPF`; colunas de endereço e contato dão suporte ao front na coleta de dados completos. |
 | `Motoristas` | Registro da equipe de transporte. | Índices únicos em `CPF` e `CNH`, índice em `Status` para consultas rápidas por disponibilidade. |
 | `Veiculos` | Frota de caminhões/carretas. | Índice único em `Placa` e índice em `Status`. Campos `CapacidadeCarga` e `CapacidadeVolume` usam `decimal(10,2)` para precisão. |
@@ -149,7 +149,6 @@ Todos os relacionamentos e restrições aparecem tanto nas configurações fluen
 A rotina `SeedData` pré-carrega o banco com:
 
 - Usuário administrador (`admin/admin123`) com cargo e perfil de administrador.
-- Usuário padrão (`usuario/usuario123`) ativo com perfil `Usuario`, utilizado para validar regras de permissão.
 - Um cliente, motorista e veículo base, todos datados de 2024 para testes.
 
 Essa semente usa `BCrypt` para armazenar a senha de forma segura, e datas em UTC para consistência.
@@ -165,10 +164,9 @@ Essa semente usa `BCrypt` para armazenar a senha de forma segura, e datas em UTC
 ## 🔁 Fluxo de Requisições e Uso do Banco
 
 1. **Autenticação:** `AuthController` verifica o login consultando `Usuarios` e validando a senha com BCrypt. Em caso de sucesso, atualiza `DataUltimoAcesso` e emite um JWT com `Perfil` como claim de autorização.
-2. **Gestão de usuários:** `UsuariosController` expõe `GET /usuarios` para listar perfis ativos (disponível a qualquer autenticado) e `POST /usuarios` protegido por `[Authorize(Roles = "Admin")]`, permitindo apenas administradores criarem novos logins com perfis `Admin` ou `Usuario`.
-3. **CRUDs principais:** os controladores de `Clientes`, `Motoristas`, `Veiculos`, `Cargas` e `Viagens` usam diretamente o `AppDbContext` para consultar e persistir dados. As validações de unicidade do SQLite retornam erros tratáveis no backend (por exemplo, tentativa de cadastrar CPF duplicado).
-4. **Dashboard:** o `DashboardController` agrega dados com `GroupBy` e projeções Linq, fazendo uso dos índices de status para relatórios ágeis.
-5. **Históricos:** alterações de status de carga ou de viagens geram registros auxiliares (`HistoricoStatusCargas`, `DespesasViagem`) garantindo rastreabilidade operacional e financeira.
+2. **CRUDs principais:** os controladores de `Clientes`, `Motoristas`, `Veiculos`, `Cargas` e `Viagens` usam diretamente o `AppDbContext` para consultar e persistir dados. As validações de unicidade do SQLite retornam erros tratáveis no backend (por exemplo, tentativa de cadastrar CPF duplicado).
+3. **Dashboard:** o `DashboardController` agrega dados com `GroupBy` e projeções Linq, fazendo uso dos índices de status para relatórios ágeis.
+4. **Históricos:** alterações de status de carga ou de viagens geram registros auxiliares (`HistoricoStatusCargas`, `DespesasViagem`) garantindo rastreabilidade operacional e financeira.
 
 Por ser um banco embarcado, todas as operações ocorrem em um único arquivo, o que facilita deploy em ambientes simples (ex.: demonstrações em laboratório). Contudo, a modelagem já está pronta para ser migrada para SQL Server ou PostgreSQL alterando apenas a connection string e o provider EF Core.
 
