@@ -11,8 +11,7 @@ const NAV_LINKS = [
   { to: '/clientes', label: 'Clientes' },
   { to: '/cargas', label: 'Cargas' },
   { to: '/viagens', label: 'Viagens' },
-  { to: '/usuarios', label: 'Usuários' },
-  { to: '/perfil', label: 'Perfil' }
+  { to: '/usuarios', label: 'Usuários' }
 ];
 
 const Navbar = () => {
@@ -20,20 +19,18 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const userInitials = useMemo(() => {
-    if (!user?.nome) {
-      return 'U';
-    }
-
+    if (!user?.nome) return 'U';
     const [first = '', second = ''] = user.nome.split(' ');
     const initials = `${first.charAt(0)}${second.charAt(0)}`;
-
     return initials.trim().toUpperCase() || 'U';
   }, [user?.nome]);
 
   const userAvatar =
     typeof user?.avatar === 'string' && user.avatar.trim() !== '' ? user.avatar : null;
 
-  const avatarLabel = user?.nome ? `Foto de perfil de ${user.nome}` : 'Foto de perfil do usuário';
+  const avatarLabel = user?.nome
+    ? `Foto de perfil de ${user.nome}`
+    : 'Foto de perfil do usuário';
 
   const handleLogout = () => {
     if (window.confirm('Deseja realmente sair do sistema?')) {
@@ -91,9 +88,6 @@ const Navbar = () => {
             <span className="app-navbar__user-role">{user?.perfil || 'Usuário'}</span>
           </div>
           <div className="app-navbar__actions">
-            <NavLink to="/perfil" className="app-navbar__action">
-              ⚙️ Perfil
-            </NavLink>
             <button
               type="button"
               className="app-navbar__logout"
