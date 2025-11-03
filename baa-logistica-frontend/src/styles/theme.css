@@ -672,6 +672,37 @@ textarea.form-field__control {
   color: #166534;
 }
 
+.import-grid {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.import-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.import-card__summary {
+  margin: 16px 0 0;
+  padding-left: 18px;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.import-card__summary li {
+  list-style: disc;
+}
+
+.import-card__note {
+  margin-top: 16px;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
 /* Status badges */
 .status-badge {
   display: inline-flex;

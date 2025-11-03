@@ -11,7 +11,9 @@ const NAV_LINKS = [
   { to: '/clientes', label: 'Clientes' },
   { to: '/cargas', label: 'Cargas' },
   { to: '/viagens', label: 'Viagens' },
-  { to: '/usuarios', label: 'Usuários' }
+  { to: '/importar', label: 'Importar', adminOnly: true },
+  { to: '/usuarios', label: 'Usuários', adminOnly: true },
+  { to: '/perfil', label: 'Perfil' }
 ];
 
 const Navbar = () => {
@@ -20,19 +22,17 @@ const Navbar = () => {
 
   const isAdmin = (user?.perfil || '').toLowerCase() === 'admin';
 
-  const availableNavLinks = useMemo(() => {
-    if (isAdmin) {
-      return NAV_LINKS;
-    }
-
-    return NAV_LINKS.filter((link) => link.to !== '/usuarios');
-  }, [isAdmin]);
+  const availableNavLinks = useMemo(
+    () => NAV_LINKS.filter((link) => !link.adminOnly || isAdmin),
+    [isAdmin]
+  );
 
   const userInitials = useMemo(() => {
-    if (!user?.nome) return 'U';
-    const [first = '', second = ''] = user.nome.split(' ');
-    const initials = `${first.charAt(0)}${second.charAt(0)}`;
-    return initials.trim().toUpperCase() || 'U';
+    if (!user?.nome) {
+      return 'U';
+    }
+
+    return user.nome.trim().charAt(0).toUpperCase() || 'U';
   }, [user?.nome]);
 
   const userAvatar =
@@ -41,6 +41,10 @@ const Navbar = () => {
   const avatarLabel = user?.nome
     ? `Foto de perfil de ${user.nome}`
     : 'Foto de perfil do usuário';
+
+  const handleProfile = () => {
+    navigate('/perfil');
+  };
 
   const handleLogout = () => {
     if (window.confirm('Deseja realmente sair do sistema?')) {
@@ -98,6 +102,13 @@ const Navbar = () => {
             <span className="app-navbar__user-role">{user?.perfil || 'Usuário'}</span>
           </div>
           <div className="app-navbar__actions">
+            <button
+              type="button"
+              className="app-navbar__action"
+              onClick={handleProfile}
+            >
+              👤 Perfil
+            </button>
             <button
               type="button"
               className="app-navbar__logout"

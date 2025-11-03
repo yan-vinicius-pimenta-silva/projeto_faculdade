@@ -1,10 +1,17 @@
 // ============================================
 // BAALogistica.API/Controllers/VeiculosController.cs
 // ============================================
+using BAALogistica.API.Helpers;
 using BAALogistica.Domain.Entities;
 using BAALogistica.Infrastructure.Data;
+using ClosedXML.Excel;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.IO;
+using System.Linq;
+using System.Text;
 
 namespace BAALogistica.API.Controllers;
 
@@ -19,6 +26,238 @@ public class VeiculosController : ControllerBase
     {
         _context = context;
         _logger = logger;
+    }
+
+    [HttpGet("export")]
+    public async Task<IActionResult> ExportVeiculos()
+    {
+        try
+        {
+            var veiculos = await _context.Veiculos
+                .AsNoTracking()
+                .OrderBy(v => v.Placa)
+                .ToListAsync();
+
+            using var workbook = new XLWorkbook();
+            var worksheet = workbook.Worksheets.Add("Veiculos");
+            var headers = new[]
+            {
+                "Placa",
+                "Modelo",
+                "Marca",
+                "AnoFabricacao",
+                "TipoVeiculo",
+                "CapacidadeCarga",
+                "CapacidadeVolume",
+                "Renavam",
+                "Chassi",
+                "KmAtual",
+                "Status",
+                "DataAquisicao",
+                "Observacoes"
+            };
+
+            for (var i = 0; i < headers.Length; i++)
+            {
+                var cell = worksheet.Cell(1, i + 1);
+                cell.Value = headers[i];
+                cell.Style.Font.Bold = true;
+            }
+
+            var rowIndex = 2;
+            foreach (var veiculo in veiculos)
+            {
+                worksheet.Cell(rowIndex, 1).Value = veiculo.Placa;
+                worksheet.Cell(rowIndex, 2).Value = veiculo.Modelo;
+                worksheet.Cell(rowIndex, 3).Value = veiculo.Marca;
+                worksheet.Cell(rowIndex, 4).Value = veiculo.AnoFabricacao;
+                worksheet.Cell(rowIndex, 5).Value = veiculo.TipoVeiculo;
+                worksheet.Cell(rowIndex, 6).Value = veiculo.CapacidadeCarga;
+                worksheet.Cell(rowIndex, 7).Value = veiculo.CapacidadeVolume;
+                worksheet.Cell(rowIndex, 8).Value = veiculo.Renavam;
+                worksheet.Cell(rowIndex, 9).Value = veiculo.Chassi;
+                worksheet.Cell(rowIndex, 10).Value = veiculo.KmAtual;
+                worksheet.Cell(rowIndex, 11).Value = veiculo.Status;
+                worksheet.Cell(rowIndex, 12).Value = veiculo.DataAquisicao;
+                worksheet.Cell(rowIndex, 12).Style.DateFormat.Format = "yyyy-MM-dd";
+                worksheet.Cell(rowIndex, 13).Value = veiculo.Observacoes;
+                rowIndex++;
+            }
+
+            worksheet.Columns().AdjustToContents();
+
+            using var stream = new MemoryStream();
+            workbook.SaveAs(stream);
+            stream.Position = 0;
+
+            var fileName = $"veiculos_{DateTime.UtcNow:yyyyMMddHHmmss}.xlsx";
+            return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao exportar veículos");
+            return StatusCode(500, new { message = "Erro interno ao exportar veículos" });
+        }
+    }
+
+    [HttpPost("import")]
+    public async Task<IActionResult> ImportVeiculos(IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+        {
+            return BadRequest(new { message = "Arquivo Excel inválido." });
+        }
+
+        try
+        {
+            using var stream = new MemoryStream();
+            await file.CopyToAsync(stream);
+            stream.Position = 0;
+
+            using var workbook = new XLWorkbook(stream);
+            var worksheet = workbook.Worksheets.FirstOrDefault();
+            if (worksheet == null)
+            {
+                return BadRequest(new { message = "Planilha não encontrada no arquivo enviado." });
+            }
+
+            var range = worksheet.RangeUsed();
+            if (range == null)
+            {
+                return BadRequest(new { message = "A planilha está vazia." });
+            }
+
+            var rows = range.RowsUsed().Skip(1).ToList();
+            if (rows.Count == 0)
+            {
+                return BadRequest(new { message = "Nenhuma linha disponível para importação." });
+            }
+
+            var existentes = await _context.Veiculos.ToListAsync();
+            var veiculosPorPlaca = existentes
+                .Where(v => !string.IsNullOrWhiteSpace(v.Placa))
+                .ToDictionary(v => NormalizePlateKey(v.Placa), v => v);
+            var veiculosPorRenavam = existentes
+                .Where(v => !string.IsNullOrWhiteSpace(v.Renavam))
+                .ToDictionary(v => ExcelHelper.NormalizeDigits(v.Renavam), v => v);
+
+            var now = DateTime.Now;
+            var inserted = 0;
+            var updated = 0;
+            var skipped = 0;
+
+            foreach (var row in rows)
+            {
+                var placaOriginal = ExcelHelper.GetString(row.Cell(1));
+                var placaKey = NormalizePlateKey(placaOriginal);
+
+                if (string.IsNullOrEmpty(placaKey))
+                {
+                    skipped++;
+                    continue;
+                }
+
+                var modelo = ExcelHelper.GetString(row.Cell(2));
+                var marca = ExcelHelper.GetString(row.Cell(3));
+                var anoFabricacao = ExcelHelper.GetInt(row.Cell(4));
+                var tipoVeiculo = ExcelHelper.GetString(row.Cell(5));
+                var capacidadeCarga = ExcelHelper.GetDecimal(row.Cell(6));
+
+                if (string.IsNullOrWhiteSpace(modelo) || string.IsNullOrWhiteSpace(marca) ||
+                    !anoFabricacao.HasValue || string.IsNullOrWhiteSpace(tipoVeiculo) ||
+                    !capacidadeCarga.HasValue)
+                {
+                    skipped++;
+                    continue;
+                }
+
+                var capacidadeVolume = ExcelHelper.GetDecimal(row.Cell(7));
+                var renavam = ExcelHelper.NormalizeDigits(ExcelHelper.GetString(row.Cell(8)));
+                var chassi = ExcelHelper.GetString(row.Cell(9));
+                var kmAtual = ExcelHelper.GetInt(row.Cell(10)) ?? 0;
+                var status = ExcelHelper.GetString(row.Cell(11)) ?? "Disponível";
+                var dataAquisicao = ExcelHelper.TryGetDate(row.Cell(12), out var data) ? data : (DateTime?)null;
+                var observacoes = ExcelHelper.GetString(row.Cell(13));
+
+                Veiculo veiculo;
+                if (veiculosPorPlaca.TryGetValue(placaKey, out var existentePlaca))
+                {
+                    veiculo = existentePlaca;
+                    updated++;
+                }
+                else if (!string.IsNullOrEmpty(renavam) && veiculosPorRenavam.TryGetValue(renavam, out var existenteRenavam))
+                {
+                    veiculo = existenteRenavam;
+                    veiculosPorPlaca[placaKey] = veiculo;
+                    updated++;
+                }
+                else
+                {
+                    veiculo = new Veiculo
+                    {
+                        Placa = placaOriginal?.ToUpperInvariant() ?? placaKey,
+                        DataCadastro = now,
+                        Status = "Disponível"
+                    };
+                    _context.Veiculos.Add(veiculo);
+                    veiculosPorPlaca[placaKey] = veiculo;
+                    if (!string.IsNullOrEmpty(renavam))
+                    {
+                        veiculosPorRenavam[renavam] = veiculo;
+                    }
+                    inserted++;
+                }
+
+                veiculo.Placa = placaOriginal?.ToUpperInvariant() ?? placaKey;
+                veiculo.Modelo = modelo;
+                veiculo.Marca = marca;
+                veiculo.AnoFabricacao = anoFabricacao.Value;
+                veiculo.TipoVeiculo = tipoVeiculo;
+                veiculo.CapacidadeCarga = capacidadeCarga.Value;
+                veiculo.CapacidadeVolume = capacidadeVolume;
+                veiculo.Renavam = string.IsNullOrEmpty(renavam) ? null : renavam;
+                veiculo.Chassi = chassi;
+                veiculo.KmAtual = kmAtual;
+                veiculo.Status = status;
+                veiculo.DataAquisicao = dataAquisicao;
+                veiculo.Observacoes = observacoes;
+                veiculo.DataAtualizacao = now;
+
+                if (!string.IsNullOrEmpty(renavam))
+                {
+                    veiculosPorRenavam[renavam] = veiculo;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { inserted, updated, skipped });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao importar veículos");
+            return StatusCode(500, new { message = "Erro interno ao importar veículos" });
+        }
+    }
+
+    private static string NormalizePlateKey(string? value)
+    {
+        var text = ExcelHelper.NormalizeText(value);
+        if (string.IsNullOrEmpty(text))
+        {
+            return string.Empty;
+        }
+
+        var builder = new StringBuilder(text.Length);
+        foreach (var ch in text)
+        {
+            if (char.IsLetterOrDigit(ch))
+            {
+                builder.Append(char.ToUpperInvariant(ch));
+            }
+        }
+
+        return builder.ToString();
     }
 
     // GET: api/veiculos

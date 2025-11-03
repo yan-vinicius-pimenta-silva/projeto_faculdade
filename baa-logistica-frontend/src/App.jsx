@@ -12,6 +12,7 @@ import Cargas from './pages/Cargas';
 import Viagens from './pages/Viagens';
 import Usuarios from './pages/Usuarios';
 import Perfil from './pages/Perfil';
+import Importar from './pages/Importar';
 import './App.css';
 
 // Layout com Navbar (para páginas protegidas)
@@ -96,6 +97,17 @@ function App() {
               <PrivateRoute>
                 <PrivateLayout>
                   <Viagens />
+                </PrivateLayout>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/importar"
+            element={
+              <PrivateRoute allowedRoles={['Admin']}>
+                <PrivateLayout>
+                  <Importar />
                 </PrivateLayout>
               </PrivateRoute>
             }
