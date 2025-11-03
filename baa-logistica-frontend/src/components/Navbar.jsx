@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import './Navbar.css';
@@ -10,12 +11,24 @@ const NAV_LINKS = [
   { to: '/clientes', label: 'Clientes' },
   { to: '/cargas', label: 'Cargas' },
   { to: '/viagens', label: 'Viagens' },
-  { to: '/usuarios', label: 'Usuários' }
+  { to: '/usuarios', label: 'Usuários' },
+  { to: '/perfil', label: 'Perfil' }
 ];
 
 const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+
+  const userInitials = useMemo(() => {
+    if (!user?.nome) {
+      return 'U';
+    }
+
+    const [first = '', second = ''] = user.nome.split(' ');
+    const initials = `${first.charAt(0)}${second.charAt(0)}`;
+
+    return initials.trim().toUpperCase() || 'U';
+  }, [user?.nome]);
 
   const handleLogout = () => {
     if (window.confirm('Deseja realmente sair do sistema?')) {
@@ -59,8 +72,15 @@ const Navbar = () => {
             <span className="app-navbar__user-role">{user?.perfil || 'Usuário'}</span>
           </div>
           <div className="app-navbar__actions">
-            <NavLink to="/alterar-senha" className="app-navbar__action">
-              🔑 Alterar Senha
+            <NavLink to="/perfil" className="app-navbar__action">
+              <span className="app-navbar__avatar" aria-hidden={false}>
+                {user?.avatar ? (
+                  <img src={user.avatar} alt="Foto do perfil" />
+                ) : (
+                  <span className="app-navbar__avatar-initials">{userInitials}</span>
+                )}
+              </span>
+              <span className="app-navbar__action-label">Perfil</span>
             </NavLink>
             <button
               type="button"
