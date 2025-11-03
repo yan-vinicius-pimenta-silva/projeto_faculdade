@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import './Navbar.css';
@@ -17,6 +18,17 @@ const NAV_LINKS = [
 const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+
+  const userInitials = useMemo(() => {
+    if (!user?.nome) {
+      return 'U';
+    }
+
+    const [first = '', second = ''] = user.nome.split(' ');
+    const initials = `${first.charAt(0)}${second.charAt(0)}`;
+
+    return initials.trim().toUpperCase() || 'U';
+  }, [user?.nome]);
 
   const handleLogout = () => {
     if (window.confirm('Deseja realmente sair do sistema?')) {
