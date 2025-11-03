@@ -18,6 +18,22 @@ const Input = ({
     .filter(Boolean)
     .join(' ');
 
+  const isFileInput = type === 'file';
+  const inputProps = {
+    type,
+    id: name,
+    name,
+    onChange,
+    placeholder,
+    required,
+    className: controlClass,
+    ...rest
+  };
+
+  if (!isFileInput) {
+    inputProps.value = value ?? '';
+  }
+
   return (
     <div className={wrapperClass}>
       {label && (
@@ -26,17 +42,7 @@ const Input = ({
           {required && <span className="form-field__required">*</span>}
         </label>
       )}
-      <input
-        type={type}
-        id={name}
-        name={name}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        required={required}
-        className={controlClass}
-        {...rest}
-      />
+      <input {...inputProps} />
       {error && <p className="form-field__error">{error}</p>}
     </div>
   );
