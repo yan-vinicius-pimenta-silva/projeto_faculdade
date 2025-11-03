@@ -724,9 +724,10 @@ textarea.form-field__control {
   inset: 0;
   z-index: 200;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  padding: clamp(120px, 14vh, 168px) 24px 24px;
+  padding: clamp(32px, 8vh, 64px) 24px;
+  overflow-y: auto;
 }
 
 .modal {
@@ -778,6 +779,8 @@ textarea.form-field__control {
 }
 
 .modal__body {
+  flex: 1 1 auto;
+  min-height: 0;
   padding: 24px 28px 32px;
   overflow-y: auto;
 }
@@ -818,7 +821,7 @@ textarea.form-field__control {
   }
 
   .modal-container {
-    padding: 104px 16px 24px;
+    padding: 24px 16px;
   }
 
   .modal {
