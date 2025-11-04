@@ -151,9 +151,9 @@ const Perfil = () => {
       !adminUsersLoading &&
       !adminError
     ) {
-      fetchAdminUsers();
+      loadAdminUsers();
     }
-  }, [activeTab, isAdmin, adminUsers.length, adminUsersLoading, adminError, fetchAdminUsers]);
+  }, [activeTab, isAdmin, adminUsers.length, adminUsersLoading, adminError, loadAdminUsers]);
 
   const handleAdminFormChange = (event) => {
     const { name, value } = event.target;
