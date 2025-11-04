@@ -5,20 +5,21 @@ const authService = {
   async login(login, senha) {
     try {
       const response = await api.post('/auth/login', { login, senha });
-      
+
       // Salvar token e dados do usuário
       if (response.data.token) {
         const currentUser = this.getCurrentUser();
+        const avatar = response.data.avatar ?? currentUser?.avatar ?? '';
 
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify({
           nome: response.data.nome,
           email: response.data.email,
           perfil: response.data.perfil,
-          avatar: currentUser?.avatar || ''
+          avatar
         }));
       }
-      
+
       return response.data;
     } catch (error) {
       throw error.response?.data?.message || 'Erro ao fazer login';
@@ -72,6 +73,16 @@ const authService = {
       return response.data;
     } catch (error) {
       throw error.response?.data?.message || 'Erro ao alterar senha';
+    }
+  },
+
+  async atualizarAvatar(avatarBase64) {
+    try {
+      const response = await api.put('/auth/avatar', { avatarBase64 });
+      this.updateCurrentUser({ avatar: response.data.avatar ?? avatarBase64 });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data?.message || 'Erro ao atualizar foto de perfil';
     }
   },
 
