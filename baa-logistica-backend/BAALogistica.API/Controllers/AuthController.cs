@@ -65,7 +65,8 @@ public class AuthController : ControllerBase
                 Nome = usuario.Nome,
                 Email = usuario.Email,
                 Perfil = usuario.Perfil,
-                Expiracao = DateTime.Now.AddHours(8)
+                Expiracao = DateTime.Now.AddHours(8),
+                Avatar = usuario.AvatarBase64
             });
         }
         catch (Exception ex)
@@ -146,13 +147,54 @@ public class AuthController : ControllerBase
                 usuario.Email,
                 usuario.Login,
                 usuario.Cargo,
-                usuario.Perfil
+                usuario.Perfil,
+                Avatar = usuario.AvatarBase64
             });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Erro ao buscar usuário atual");
             return StatusCode(500);
+        }
+    }
+
+    // PUT: api/auth/avatar
+    [Authorize]
+    [HttpPut("avatar")]
+    public async Task<IActionResult> AtualizarAvatar([FromBody] UpdateAvatarRequest request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        try
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim))
+            {
+                return Unauthorized();
+            }
+
+            var userId = int.Parse(userIdClaim);
+            var usuario = await _context.Usuarios.FindAsync(userId);
+
+            if (usuario == null)
+            {
+                return NotFound(new { message = "Usuário não encontrado" });
+            }
+
+            usuario.AvatarBase64 = request.AvatarBase64;
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Avatar atualizado para o usuário {Login}", usuario.Login);
+
+            return Ok(new { avatar = usuario.AvatarBase64 });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao atualizar avatar");
+            return StatusCode(500, new { message = "Erro interno ao atualizar avatar" });
         }
     }
 

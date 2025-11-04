@@ -9,5 +9,10 @@ export const usuariosService = {
   async create(payload) {
     const response = await api.post('/usuarios', payload);
     return response.data;
+  },
+
+  async updatePassword(usuarioId, novaSenha) {
+    const response = await api.put(`/usuarios/${usuarioId}/senha`, { novaSenha });
+    return response.data;
   }
 };

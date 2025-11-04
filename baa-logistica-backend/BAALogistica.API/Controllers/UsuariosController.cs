@@ -44,7 +44,8 @@ public class UsuariosController : ControllerBase
                     Perfil = u.Perfil,
                     Ativo = u.Ativo,
                     DataCriacao = u.DataCriacao,
-                    DataUltimoAcesso = u.DataUltimoAcesso
+                    DataUltimoAcesso = u.DataUltimoAcesso,
+                    Avatar = u.AvatarBase64
                 })
                 .ToListAsync();
 
@@ -119,7 +120,8 @@ public class UsuariosController : ControllerBase
                 Perfil = novoUsuario.Perfil,
                 Ativo = novoUsuario.Ativo,
                 DataCriacao = novoUsuario.DataCriacao,
-                DataUltimoAcesso = novoUsuario.DataUltimoAcesso
+                DataUltimoAcesso = novoUsuario.DataUltimoAcesso,
+                Avatar = novoUsuario.AvatarBase64
             };
 
             return Created($"api/usuarios/{novoUsuario.Id}", response);
@@ -128,6 +130,38 @@ public class UsuariosController : ControllerBase
         {
             _logger.LogError(ex, "Erro ao criar usuário");
             return StatusCode(500, new { message = "Erro interno ao criar usuário" });
+        }
+    }
+
+    [HttpPut("{id}/senha")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> AtualizarSenhaUsuario(int id, [FromBody] ResetUsuarioSenhaRequest request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        try
+        {
+            var usuario = await _context.Usuarios.FindAsync(id);
+
+            if (usuario == null)
+            {
+                return NotFound(new { message = "Usuário não encontrado" });
+            }
+
+            usuario.SenhaHash = BCrypt.Net.BCrypt.HashPassword(request.NovaSenha);
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Senha do usuário {Login} atualizada por administrador", usuario.Login);
+
+            return Ok(new { message = "Senha atualizada com sucesso." });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao atualizar senha do usuário {UsuarioId}", id);
+            return StatusCode(500, new { message = "Erro interno ao atualizar senha do usuário" });
         }
     }
 }

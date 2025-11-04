@@ -33,4 +33,6 @@ public class Usuario
     public DateTime DataCriacao { get; set; } = DateTime.Now;
 
     public DateTime? DataUltimoAcesso { get; set; }
+
+    public string? AvatarBase64 { get; set; }
 }
