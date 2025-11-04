@@ -40,24 +40,6 @@ const Perfil = () => {
   const [adminSuccess, setAdminSuccess] = useState('');
   const [adminLoading, setAdminLoading] = useState(false);
 
-  const fetchAdminUsers = useCallback(async () => {
-    setAdminUsersLoading(true);
-    setAdminError('');
-    try {
-      const data = await usuariosService.getAll();
-      const filtered = user?.email ? data.filter((item) => item.email !== user.email) : data;
-      setAdminUsers(filtered);
-    } catch (error) {
-      const message =
-        typeof error === 'string'
-          ? error
-          : error?.response?.data?.message || 'Erro ao carregar usuários.';
-      setAdminError(message);
-    } finally {
-      setAdminUsersLoading(false);
-    }
-  }, [user?.email]);
-
   const userInitials = useMemo(() => {
     if (!user?.nome) return 'U';
     const [first = '', second = ''] = user.nome.split(' ');
@@ -109,6 +91,24 @@ const Perfil = () => {
     setAdminSuccess('');
     setAdminForm({ usuarioId: '', novaSenha: '', confirmarSenha: '' });
   };
+
+  const fetchAdminUsers = useCallback(async () => {
+    setAdminUsersLoading(true);
+    setAdminError('');
+    try {
+      const data = await usuariosService.getAll();
+      const filtered = user?.email ? data.filter((item) => item.email !== user.email) : data;
+      setAdminUsers(filtered);
+    } catch (error) {
+      const message =
+        typeof error === 'string'
+          ? error
+          : error?.response?.data?.message || 'Erro ao carregar usuários.';
+      setAdminError(message);
+    } finally {
+      setAdminUsersLoading(false);
+    }
+  }, [user?.email]);
 
   const handleAdminFormChange = (event) => {
     const { name, value } = event.target;
