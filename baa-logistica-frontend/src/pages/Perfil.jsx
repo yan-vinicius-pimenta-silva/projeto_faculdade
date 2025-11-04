@@ -40,6 +40,7 @@ const Perfil = () => {
       adminUsersRequestRef.current = false;
     };
   }, []);
+
   const [adminForm, setAdminForm] = useState({
     usuarioId: '',
     novaSenha: '',
@@ -142,18 +143,6 @@ const Perfil = () => {
       loadAdminUsers();
     }
   }, [activeTab, isAdmin, loadAdminUsers]);
-
-  useEffect(() => {
-    if (
-      activeTab === 'admin-password' &&
-      isAdmin &&
-      adminUsers.length === 0 &&
-      !adminUsersLoading &&
-      !adminError
-    ) {
-      fetchAdminUsers();
-    }
-  }, [activeTab, isAdmin, adminUsers.length, adminUsersLoading, adminError, fetchAdminUsers]);
 
   const handleAdminFormChange = (event) => {
     const { name, value } = event.target;
