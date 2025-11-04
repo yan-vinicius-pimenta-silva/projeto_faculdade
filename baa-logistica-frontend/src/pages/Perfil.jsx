@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Card from '../components/common/Card';
 import Input from '../components/common/Input';
 import Button from '../components/common/Button';
@@ -31,6 +31,15 @@ const Perfil = () => {
 
   const [adminUsers, setAdminUsers] = useState([]);
   const [adminUsersLoading, setAdminUsersLoading] = useState(false);
+  const adminUsersRequestRef = useRef(false);
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+      adminUsersRequestRef.current = false;
+    };
+  }, []);
   const [adminForm, setAdminForm] = useState({
     usuarioId: '',
     novaSenha: '',
@@ -60,18 +69,6 @@ const Perfil = () => {
     };
   }, [photoPreview]);
 
-  useEffect(() => {
-    if (
-      activeTab === 'admin-password' &&
-      isAdmin &&
-      adminUsers.length === 0 &&
-      !adminUsersLoading &&
-      !adminError
-    ) {
-      fetchAdminUsers();
-    }
-  }, [activeTab, isAdmin, adminUsers.length, adminUsersLoading, adminError, fetchAdminUsers]);
-
   const convertFileToDataUrl = (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -80,6 +77,54 @@ const Perfil = () => {
       reader.readAsDataURL(file);
     });
   };
+
+  const loadAdminUsers = useCallback(
+    async (forceReload = false) => {
+      if (adminUsersRequestRef.current && !forceReload) {
+        return;
+      }
+
+      adminUsersRequestRef.current = true;
+      if (!isMountedRef.current) {
+        adminUsersRequestRef.current = false;
+        return;
+      }
+
+      setAdminUsersLoading(true);
+      setAdminError('');
+
+      try {
+        const data = await usuariosService.getAll();
+        const filtered =
+          user?.email && Array.isArray(data)
+            ? data.filter((item) => item.email !== user.email)
+            : Array.isArray(data)
+              ? data
+              : [];
+
+        if (isMountedRef.current) {
+          setAdminUsers(filtered);
+        }
+      } catch (error) {
+        const responseMessage = error?.response?.data?.message;
+        const message =
+          typeof error === 'string'
+            ? error
+            : responseMessage || 'Erro ao carregar usuários.';
+
+        if (isMountedRef.current) {
+          setAdminError(message);
+          setAdminUsers([]);
+        }
+      } finally {
+        adminUsersRequestRef.current = false;
+        if (isMountedRef.current) {
+          setAdminUsersLoading(false);
+        }
+      }
+    },
+    [user?.email]
+  );
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -92,23 +137,11 @@ const Perfil = () => {
     setAdminForm({ usuarioId: '', novaSenha: '', confirmarSenha: '' });
   };
 
-  const fetchAdminUsers = useCallback(async () => {
-    setAdminUsersLoading(true);
-    setAdminError('');
-    try {
-      const data = await usuariosService.getAll();
-      const filtered = user?.email ? data.filter((item) => item.email !== user.email) : data;
-      setAdminUsers(filtered);
-    } catch (error) {
-      const message =
-        typeof error === 'string'
-          ? error
-          : error?.response?.data?.message || 'Erro ao carregar usuários.';
-      setAdminError(message);
-    } finally {
-      setAdminUsersLoading(false);
+  useEffect(() => {
+    if (activeTab === 'admin-password' && isAdmin) {
+      loadAdminUsers();
     }
-  }, [user?.email]);
+  }, [activeTab, isAdmin, loadAdminUsers]);
 
   const handleAdminFormChange = (event) => {
     const { name, value } = event.target;
@@ -145,7 +178,7 @@ const Perfil = () => {
       await usuariosService.updatePassword(adminForm.usuarioId, adminForm.novaSenha);
       setAdminSuccess('Senha do usuário atualizada com sucesso!');
       setAdminForm({ usuarioId: '', novaSenha: '', confirmarSenha: '' });
-      await fetchAdminUsers();
+      await loadAdminUsers(true);
     } catch (error) {
       const message =
         typeof error === 'string'
@@ -410,7 +443,7 @@ const Perfil = () => {
               <Button
                 type="button"
                 variant="secondary"
-                onClick={fetchAdminUsers}
+                onClick={() => loadAdminUsers(true)}
                 disabled={adminUsersLoading || adminLoading}
               >
                 Recarregar lista
@@ -454,7 +487,7 @@ const Perfil = () => {
                 <Button
                   type="button"
                   variant="secondary"
-                  onClick={fetchAdminUsers}
+                  onClick={() => loadAdminUsers(true)}
                   disabled={adminLoading || adminUsersLoading}
                 >
                   Recarregar lista
