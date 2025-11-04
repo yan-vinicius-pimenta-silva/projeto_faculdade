@@ -182,7 +182,8 @@ public class AppDbContext : DbContext
             entity.Property(e => e.SenhaHash).IsRequired();
             entity.Property(e => e.Perfil).HasMaxLength(20).HasDefaultValue("Usuario");
             entity.Property(e => e.Cargo).HasMaxLength(50);
-            
+            entity.Property(e => e.AvatarBase64);
+
             entity.HasIndex(e => e.Login).IsUnique();
             entity.HasIndex(e => e.Email).IsUnique();
         });
@@ -205,7 +206,8 @@ public class AppDbContext : DbContext
                 Perfil = "Admin",
                 Cargo = "Administrador do Sistema",
                 Ativo = true,
-                DataCriacao = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                DataCriacao = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                AvatarBase64 = null
             },
             new Usuario
             {
@@ -217,7 +219,8 @@ public class AppDbContext : DbContext
                 Perfil = "Usuario",
                 Cargo = "Analista Operacional",
                 Ativo = true,
-                DataCriacao = new DateTime(2024, 1, 2, 0, 0, 0, DateTimeKind.Utc)
+                DataCriacao = new DateTime(2024, 1, 2, 0, 0, 0, DateTimeKind.Utc),
+                AvatarBase64 = null
             }
         );
 

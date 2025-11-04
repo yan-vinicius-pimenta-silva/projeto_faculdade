@@ -13,4 +13,5 @@ public class UsuarioResponse
     public bool Ativo { get; set; }
     public DateTime DataCriacao { get; set; }
     public DateTime? DataUltimoAcesso { get; set; }
+    public string? Avatar { get; set; }
 }

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,6 +55,37 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     dbContext.Database.EnsureCreated();
+
+    var connection = dbContext.Database.GetDbConnection();
+    connection.Open();
+    try
+    {
+        using var pragmaCommand = connection.CreateCommand();
+        pragmaCommand.CommandText = "PRAGMA table_info(Usuarios);";
+        using var reader = pragmaCommand.ExecuteReader();
+
+        var hasAvatarColumn = false;
+        while (reader.Read())
+        {
+            var columnName = reader.GetString(1);
+            if (string.Equals(columnName, "AvatarBase64", StringComparison.OrdinalIgnoreCase))
+            {
+                hasAvatarColumn = true;
+                break;
+            }
+        }
+
+        if (!hasAvatarColumn)
+        {
+            using var alterCommand = connection.CreateCommand();
+            alterCommand.CommandText = "ALTER TABLE Usuarios ADD COLUMN AvatarBase64 TEXT";
+            alterCommand.ExecuteNonQuery();
+        }
+    }
+    finally
+    {
+        connection.Close();
+    }
 }
 
 if (app.Environment.IsDevelopment())

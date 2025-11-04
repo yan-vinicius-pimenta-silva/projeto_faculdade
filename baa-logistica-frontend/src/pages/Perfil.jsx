@@ -1,15 +1,18 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Card from '../components/common/Card';
 import Input from '../components/common/Input';
 import Button from '../components/common/Button';
+import Select from '../components/common/Select';
 import { useAuth } from '../contexts/AuthContext';
 import authService from '../services/authService';
+import { usuariosService } from '../services/usuariosService';
 
 const MAX_PHOTO_SIZE = 2 * 1024 * 1024; // 2MB
 
 const Perfil = () => {
   const { user, updateUserProfile } = useAuth();
   const [activeTab, setActiveTab] = useState('photo');
+  const isAdmin = user?.perfil === 'Admin';
 
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(user?.avatar || '');
@@ -25,6 +28,17 @@ const Perfil = () => {
   const [passwordError, setPasswordError] = useState('');
   const [passwordSuccess, setPasswordSuccess] = useState('');
   const [passwordLoading, setPasswordLoading] = useState(false);
+
+  const [adminUsers, setAdminUsers] = useState([]);
+  const [adminUsersLoading, setAdminUsersLoading] = useState(false);
+  const [adminForm, setAdminForm] = useState({
+    usuarioId: '',
+    novaSenha: '',
+    confirmarSenha: ''
+  });
+  const [adminError, setAdminError] = useState('');
+  const [adminSuccess, setAdminSuccess] = useState('');
+  const [adminLoading, setAdminLoading] = useState(false);
 
   const userInitials = useMemo(() => {
     if (!user?.nome) return 'U';
@@ -46,6 +60,18 @@ const Perfil = () => {
     };
   }, [photoPreview]);
 
+  useEffect(() => {
+    if (
+      activeTab === 'admin-password' &&
+      isAdmin &&
+      adminUsers.length === 0 &&
+      !adminUsersLoading &&
+      !adminError
+    ) {
+      fetchAdminUsers();
+    }
+  }, [activeTab, isAdmin, adminUsers.length, adminUsersLoading, adminError, fetchAdminUsers]);
+
   const convertFileToDataUrl = (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -61,6 +87,74 @@ const Perfil = () => {
     setPhotoSuccess('');
     setPasswordError('');
     setPasswordSuccess('');
+    setAdminError('');
+    setAdminSuccess('');
+    setAdminForm({ usuarioId: '', novaSenha: '', confirmarSenha: '' });
+  };
+
+  const fetchAdminUsers = useCallback(async () => {
+    setAdminUsersLoading(true);
+    setAdminError('');
+    try {
+      const data = await usuariosService.getAll();
+      const filtered = user?.email ? data.filter((item) => item.email !== user.email) : data;
+      setAdminUsers(filtered);
+    } catch (error) {
+      const message =
+        typeof error === 'string'
+          ? error
+          : error?.response?.data?.message || 'Erro ao carregar usuários.';
+      setAdminError(message);
+    } finally {
+      setAdminUsersLoading(false);
+    }
+  }, [user?.email]);
+
+  const handleAdminFormChange = (event) => {
+    const { name, value } = event.target;
+    setAdminForm((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+    setAdminError('');
+    setAdminSuccess('');
+  };
+
+  const handleAdminSubmit = async (event) => {
+    event.preventDefault();
+    setAdminError('');
+    setAdminSuccess('');
+
+    if (!adminForm.usuarioId) {
+      setAdminError('Selecione um usuário para atualizar a senha.');
+      return;
+    }
+
+    if (adminForm.novaSenha.length < 6) {
+      setAdminError('A nova senha deve ter no mínimo 6 caracteres.');
+      return;
+    }
+
+    if (adminForm.novaSenha !== adminForm.confirmarSenha) {
+      setAdminError('As senhas informadas não coincidem.');
+      return;
+    }
+
+    setAdminLoading(true);
+    try {
+      await usuariosService.updatePassword(adminForm.usuarioId, adminForm.novaSenha);
+      setAdminSuccess('Senha do usuário atualizada com sucesso!');
+      setAdminForm({ usuarioId: '', novaSenha: '', confirmarSenha: '' });
+      await fetchAdminUsers();
+    } catch (error) {
+      const message =
+        typeof error === 'string'
+          ? error
+          : error?.response?.data?.message || 'Erro ao atualizar a senha do usuário.';
+      setAdminError(message);
+    } finally {
+      setAdminLoading(false);
+    }
   };
 
   const handlePhotoChange = (event) => {
@@ -105,12 +199,15 @@ const Perfil = () => {
     setPhotoLoading(true);
     try {
       const dataUrl = await convertFileToDataUrl(photoFile);
-      updateUserProfile({ avatar: dataUrl });
-      setPhotoPreview(dataUrl);
+      const response = await authService.atualizarAvatar(dataUrl);
+      const updatedAvatar = response?.avatar ?? dataUrl;
+      updateUserProfile({ avatar: updatedAvatar });
+      setPhotoPreview(updatedAvatar);
       setPhotoFile(null);
       setPhotoSuccess('Foto de perfil atualizada com sucesso!');
     } catch (error) {
-      setPhotoError(error.message || 'Não foi possível atualizar a foto de perfil.');
+      const message = typeof error === 'string' ? error : error?.message;
+      setPhotoError(message || 'Não foi possível atualizar a foto de perfil.');
     } finally {
       setPhotoLoading(false);
     }
@@ -194,6 +291,17 @@ const Perfil = () => {
         >
           🔐 Segurança
         </button>
+        {isAdmin && (
+          <button
+            type="button"
+            role="tab"
+            className={`profile-tab ${activeTab === 'admin-password' ? 'is-active' : ''}`}
+            onClick={() => handleTabChange('admin-password')}
+            aria-selected={activeTab === 'admin-password'}
+          >
+            👥 Administração
+          </button>
+        )}
       </div>
 
       {activeTab === 'photo' && (
@@ -283,6 +391,80 @@ const Perfil = () => {
               </Button>
             </div>
           </form>
+        </Card>
+      )}
+
+      {activeTab === 'admin-password' && isAdmin && (
+        <Card
+          title="Redefina senhas de usuários"
+          subtitle="Permita que colegas recuperem o acesso de forma segura sem conhecer a senha anterior"
+        >
+          {adminError && <div className="alert alert--error">⚠️ {adminError}</div>}
+          {adminSuccess && <div className="alert alert--success">✅ {adminSuccess}</div>}
+
+          {adminUsersLoading ? (
+            <p>Carregando usuários disponíveis...</p>
+          ) : adminUsers.length === 0 ? (
+            <div className="empty-state">
+              <p>Não encontramos outros usuários para atualizar a senha.</p>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={fetchAdminUsers}
+                disabled={adminUsersLoading || adminLoading}
+              >
+                Recarregar lista
+              </Button>
+            </div>
+          ) : (
+            <form onSubmit={handleAdminSubmit} className="form-grid form-grid--two">
+              <Select
+                label="Usuário"
+                name="usuarioId"
+                value={adminForm.usuarioId}
+                onChange={handleAdminFormChange}
+                options={adminUsers.map((usuario) => ({
+                  value: usuario.id,
+                  label: `${usuario.nome} (${usuario.email})`
+                }))}
+                required
+              />
+
+              <Input
+                label="Nova senha do usuário"
+                name="novaSenha"
+                type="password"
+                value={adminForm.novaSenha}
+                onChange={handleAdminFormChange}
+                placeholder="Mínimo de 6 caracteres"
+                required
+              />
+
+              <Input
+                label="Confirmar nova senha"
+                name="confirmarSenha"
+                type="password"
+                value={adminForm.confirmarSenha}
+                onChange={handleAdminFormChange}
+                placeholder="Repita a nova senha"
+                required
+              />
+
+              <div className="form-actions">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={fetchAdminUsers}
+                  disabled={adminLoading || adminUsersLoading}
+                >
+                  Recarregar lista
+                </Button>
+                <Button type="submit" disabled={adminLoading}>
+                  {adminLoading ? 'Atualizando...' : 'Atualizar senha do usuário'}
+                </Button>
+              </div>
+            </form>
+          )}
         </Card>
       )}
     </div>
