@@ -60,18 +60,6 @@ const Perfil = () => {
     };
   }, [photoPreview]);
 
-  useEffect(() => {
-    if (
-      activeTab === 'admin-password' &&
-      isAdmin &&
-      adminUsers.length === 0 &&
-      !adminUsersLoading &&
-      !adminError
-    ) {
-      fetchAdminUsers();
-    }
-  }, [activeTab, isAdmin, adminUsers.length, adminUsersLoading, adminError, fetchAdminUsers]);
-
   const convertFileToDataUrl = (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -109,6 +97,18 @@ const Perfil = () => {
       setAdminUsersLoading(false);
     }
   }, [user?.email]);
+
+  useEffect(() => {
+    if (
+      activeTab === 'admin-password' &&
+      isAdmin &&
+      adminUsers.length === 0 &&
+      !adminUsersLoading &&
+      !adminError
+    ) {
+      fetchAdminUsers();
+    }
+  }, [activeTab, isAdmin, adminUsers.length, adminUsersLoading, adminError, fetchAdminUsers]);
 
   const handleAdminFormChange = (event) => {
     const { name, value } = event.target;
