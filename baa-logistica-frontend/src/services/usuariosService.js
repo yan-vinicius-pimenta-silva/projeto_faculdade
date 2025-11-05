@@ -19,7 +19,7 @@ export const usuariosService = {
 
   async updateStatus(usuarioId, ativo) {
     const id = encodeURIComponent(usuarioId);
-    const response = await api.put(`/usuarios/${id}/status`, { ativo });
+    const response = await api.patch(`/usuarios/${id}/status`, { ativo });
     return response.data;
   }
 };
