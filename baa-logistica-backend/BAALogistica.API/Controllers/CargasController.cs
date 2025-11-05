@@ -1,6 +1,8 @@
 // ============================================
 // BAALogistica.API/Controllers/CargasController.cs
 // ============================================
+using System;
+using BAALogistica.API.Models.Requests;
 using BAALogistica.Domain.Entities;
 using BAALogistica.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
@@ -69,36 +71,79 @@ public class CargasController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Carga>> CreateCarga([FromBody] Carga carga)
+    public async Task<ActionResult<Carga>> CreateCarga([FromBody] CargaCreateRequest request)
     {
         try
         {
-            _logger.LogInformation("Recebendo carga: Protocolo={Protocolo}", carga.NumeroProtocolo);
+            _logger.LogInformation("Recebendo carga: Protocolo={Protocolo}", request.NumeroProtocolo);
 
             // Validações
-            if (string.IsNullOrWhiteSpace(carga.NumeroProtocolo))
+            if (string.IsNullOrWhiteSpace(request.NumeroProtocolo))
             {
                 return BadRequest(new { message = "Número de protocolo é obrigatório" });
             }
 
-            if (carga.ClienteId <= 0)
+            if (request.ClienteId <= 0)
             {
                 return BadRequest(new { message = "Cliente é obrigatório" });
             }
 
-            if (string.IsNullOrWhiteSpace(carga.DescricaoCarga))
+            if (!await _context.Clientes.AnyAsync(c => c.Id == request.ClienteId))
+            {
+                return BadRequest(new { message = "Cliente não encontrado" });
+            }
+
+            if (string.IsNullOrWhiteSpace(request.TipoCarga))
+            {
+                return BadRequest(new { message = "Tipo de carga é obrigatório" });
+            }
+
+            if (string.IsNullOrWhiteSpace(request.DescricaoCarga))
             {
                 return BadRequest(new { message = "Descrição da carga é obrigatória" });
             }
 
-            if (await _context.Cargas.AnyAsync(c => c.NumeroProtocolo == carga.NumeroProtocolo))
+            if (string.IsNullOrWhiteSpace(request.EnderecoColeta) || string.IsNullOrWhiteSpace(request.CidadeColeta) || string.IsNullOrWhiteSpace(request.EstadoColeta))
+            {
+                return BadRequest(new { message = "Endereço de coleta completo é obrigatório" });
+            }
+
+            if (string.IsNullOrWhiteSpace(request.EnderecoEntrega) || string.IsNullOrWhiteSpace(request.CidadeEntrega) || string.IsNullOrWhiteSpace(request.EstadoEntrega))
+            {
+                return BadRequest(new { message = "Endereço de entrega completo é obrigatório" });
+            }
+
+            var numeroProtocolo = request.NumeroProtocolo.Trim();
+
+            if (await _context.Cargas.AnyAsync(c => c.NumeroProtocolo == numeroProtocolo))
             {
                 return BadRequest(new { message = "Número de protocolo já existe" });
             }
 
-            carga.Id = 0;
-            carga.DataCadastro = DateTime.Now;
+            var carga = new Carga
+            {
+                NumeroProtocolo = numeroProtocolo,
+                ClienteId = request.ClienteId,
+                TipoCarga = request.TipoCarga.Trim(),
+                DescricaoCarga = request.DescricaoCarga.Trim(),
+                PesoCarga = request.PesoCarga,
+                VolumeCarga = request.VolumeCarga,
+                ValorCarga = request.ValorCarga,
+                EnderecoColeta = request.EnderecoColeta.Trim(),
+                CidadeColeta = request.CidadeColeta.Trim(),
+                EstadoColeta = request.EstadoColeta.Trim(),
+                EnderecoEntrega = request.EnderecoEntrega.Trim(),
+                CidadeEntrega = request.CidadeEntrega.Trim(),
+                EstadoEntrega = request.EstadoEntrega.Trim(),
+                DataCadastro = DateTime.Now,
+                DataPrevistaColeta = request.DataPrevistaColeta,
+                DataPrevistaEntrega = request.DataPrevistaEntrega,
+                Status = string.IsNullOrWhiteSpace(request.Status) ? "Aguardando" : request.Status.Trim(),
+                Observacoes = string.IsNullOrWhiteSpace(request.Observacoes) ? null : request.Observacoes.Trim()
+            };
+
             _context.Cargas.Add(carga);
+            await _context.SaveChangesAsync();
 
             // Criar histórico inicial
             var historico = new HistoricoStatusCarga
@@ -112,6 +157,8 @@ public class CargasController : ControllerBase
 
             await _context.SaveChangesAsync();
 
+            await _context.Entry(carga).Reference(c => c.Cliente).LoadAsync();
+
             _logger.LogInformation("Carga criada com sucesso: Id={Id}", carga.Id);
 
             return CreatedAtAction(nameof(GetCarga), new { id = carga.Id }, carga);
@@ -124,9 +171,9 @@ public class CargasController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateCarga(int id, [FromBody] Carga carga)
+    public async Task<IActionResult> UpdateCarga(int id, [FromBody] CargaUpdateRequest request)
     {
-        if (id != carga.Id)
+        if (id != request.Id)
         {
             return BadRequest(new { message = "ID inconsistente" });
         }
@@ -139,32 +186,75 @@ public class CargasController : ControllerBase
                 return NotFound(new { message = "Carga não encontrada" });
             }
 
+            if (!await _context.Clientes.AnyAsync(c => c.Id == request.ClienteId))
+            {
+                return BadRequest(new { message = "Cliente não encontrado" });
+            }
+
+            if (string.IsNullOrWhiteSpace(request.NumeroProtocolo))
+            {
+                return BadRequest(new { message = "Número de protocolo é obrigatório" });
+            }
+
+            var numeroProtocolo = request.NumeroProtocolo.Trim();
+
+            if (!string.Equals(cargaExistente.NumeroProtocolo, numeroProtocolo, StringComparison.OrdinalIgnoreCase))
+            {
+                if (await _context.Cargas.AnyAsync(c => c.NumeroProtocolo == numeroProtocolo && c.Id != id))
+                {
+                    return BadRequest(new { message = "Número de protocolo já existe" });
+                }
+
+                cargaExistente.NumeroProtocolo = numeroProtocolo;
+            }
+
+            if (string.IsNullOrWhiteSpace(request.TipoCarga))
+            {
+                return BadRequest(new { message = "Tipo de carga é obrigatório" });
+            }
+
+            if (string.IsNullOrWhiteSpace(request.DescricaoCarga))
+            {
+                return BadRequest(new { message = "Descrição da carga é obrigatória" });
+            }
+
+            if (string.IsNullOrWhiteSpace(request.EnderecoColeta) || string.IsNullOrWhiteSpace(request.CidadeColeta) || string.IsNullOrWhiteSpace(request.EstadoColeta))
+            {
+                return BadRequest(new { message = "Endereço de coleta completo é obrigatório" });
+            }
+
+            if (string.IsNullOrWhiteSpace(request.EnderecoEntrega) || string.IsNullOrWhiteSpace(request.CidadeEntrega) || string.IsNullOrWhiteSpace(request.EstadoEntrega))
+            {
+                return BadRequest(new { message = "Endereço de entrega completo é obrigatório" });
+            }
+
             var statusAnterior = cargaExistente.Status;
 
-            cargaExistente.TipoCarga = carga.TipoCarga;
-            cargaExistente.DescricaoCarga = carga.DescricaoCarga;
-            cargaExistente.PesoCarga = carga.PesoCarga;
-            cargaExistente.VolumeCarga = carga.VolumeCarga;
-            cargaExistente.ValorCarga = carga.ValorCarga;
-            cargaExistente.EnderecoColeta = carga.EnderecoColeta;
-            cargaExistente.CidadeColeta = carga.CidadeColeta;
-            cargaExistente.EstadoColeta = carga.EstadoColeta;
-            cargaExistente.EnderecoEntrega = carga.EnderecoEntrega;
-            cargaExistente.CidadeEntrega = carga.CidadeEntrega;
-            cargaExistente.EstadoEntrega = carga.EstadoEntrega;
-            cargaExistente.DataPrevistaColeta = carga.DataPrevistaColeta;
-            cargaExistente.DataPrevistaEntrega = carga.DataPrevistaEntrega;
-            cargaExistente.Status = carga.Status;
-            cargaExistente.Observacoes = carga.Observacoes;
+            cargaExistente.ClienteId = request.ClienteId;
+            cargaExistente.TipoCarga = request.TipoCarga.Trim();
+            cargaExistente.DescricaoCarga = request.DescricaoCarga.Trim();
+            cargaExistente.PesoCarga = request.PesoCarga;
+            cargaExistente.VolumeCarga = request.VolumeCarga;
+            cargaExistente.ValorCarga = request.ValorCarga;
+            cargaExistente.EnderecoColeta = request.EnderecoColeta.Trim();
+            cargaExistente.CidadeColeta = request.CidadeColeta.Trim();
+            cargaExistente.EstadoColeta = request.EstadoColeta.Trim();
+            cargaExistente.EnderecoEntrega = request.EnderecoEntrega.Trim();
+            cargaExistente.CidadeEntrega = request.CidadeEntrega.Trim();
+            cargaExistente.EstadoEntrega = request.EstadoEntrega.Trim();
+            cargaExistente.DataPrevistaColeta = request.DataPrevistaColeta;
+            cargaExistente.DataPrevistaEntrega = request.DataPrevistaEntrega;
+            cargaExistente.Status = string.IsNullOrWhiteSpace(request.Status) ? cargaExistente.Status : request.Status.Trim();
+            cargaExistente.Observacoes = string.IsNullOrWhiteSpace(request.Observacoes) ? null : request.Observacoes.Trim();
 
             // Se mudou o status, criar histórico
-            if (statusAnterior != carga.Status)
+            if (!string.Equals(statusAnterior, cargaExistente.Status, StringComparison.OrdinalIgnoreCase))
             {
                 var historico = new HistoricoStatusCarga
                 {
                     CargaId = id,
                     StatusAnterior = statusAnterior,
-                    StatusNovo = carga.Status,
+                    StatusNovo = cargaExistente.Status,
                     DataMudanca = DateTime.Now
                 };
                 _context.HistoricoStatusCargas.Add(historico);
