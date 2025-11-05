@@ -23,8 +23,8 @@ public class Viagem
     public DateTime DataAtualizacao { get; set; } = DateTime.Now;
 
     // Relacionamentos
-    public Carga Carga { get; set; } = null!;
-    public Veiculo Veiculo { get; set; } = null!;
-    public Motorista Motorista { get; set; } = null!;
+    public Carga? Carga { get; set; }
+    public Veiculo? Veiculo { get; set; }
+    public Motorista? Motorista { get; set; }
     public ICollection<DespesaViagem> Despesas { get; set; } = new List<DespesaViagem>();
 }
