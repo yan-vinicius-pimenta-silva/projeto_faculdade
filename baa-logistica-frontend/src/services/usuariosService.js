@@ -12,12 +12,14 @@ export const usuariosService = {
   },
 
   async updatePassword(usuarioId, novaSenha) {
-    const response = await api.put(`/usuarios/${usuarioId}/senha`, { novaSenha });
+    const id = encodeURIComponent(usuarioId);
+    const response = await api.put(`/usuarios/${id}/senha`, { novaSenha });
     return response.data;
   },
 
   async updateStatus(usuarioId, ativo) {
-    const response = await api.patch(`/usuarios/${usuarioId}/status`, { ativo });
+    const id = encodeURIComponent(usuarioId);
+    const response = await api.put(`/usuarios/${id}/status`, { ativo });
     return response.data;
   }
 };

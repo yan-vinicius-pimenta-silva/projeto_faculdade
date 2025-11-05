@@ -1,400 +1,190 @@
-# 📋 Guia de Execução - Sistema B.A.A Logística
+# 🚚 B.A.A Logística – Sistema de Gestão de Transporte
 
-## 🎯 Requisitos
+Um sistema acadêmico completo para gestão de cargas, frota e operações logísticas. O projeto é composto por uma **API ASP.NET Core 8** e um **frontend React + Vite**, entregando autenticação com JWT, dashboards operacionais e fluxos administrativos para motoristas, veículos, clientes, cargas e viagens.
 
-- **.NET 8 SDK** - [Download](https://dotnet.microsoft.com/download)
-- **Node.js** (v18 ou superior) - [Download](https://nodejs.org/)
-- **Editor de código** (Visual Studio Code recomendado)
+## 📚 Sumário
+- [Visão Geral](#-visão-geral)
+- [Arquitetura](#-arquitetura)
+- [Tecnologias Utilizadas](#-tecnologias-utilizadas)
+- [Pré-requisitos](#-pré-requisitos)
+- [Guia Rápido de Execução](#-guia-rápido-de-execução)
+  - [Backend (.NET)](#backend-net)
+  - [Frontend (React)](#frontend-react)
+- [Configuração de Ambiente](#-configuração-de-ambiente)
+- [Banco de Dados e Seed](#-banco-de-dados-e-seed)
+- [Scripts Disponíveis](#-scripts-disponíveis)
+- [Estrutura do Projeto](#-estrutura-do-projeto)
+- [Principais Funcionalidades](#-principais-funcionalidades)
+- [Endpoints Essenciais](#-endpoints-essenciais)
+- [Testes e Qualidade](#-testes-e-qualidade)
+- [Resolução de Problemas](#-resolução-de-problemas)
+- [Créditos e Licença](#-créditos-e-licença)
 
-## 🚀 Passo a Passo para Executar
+## 🎯 Visão Geral
+- **Objetivo:** apoiar operações da empresa fictícia B.A.A Logística com cadastros completos, planejamento de viagens e acompanhamento de cargas.
+- **Usuários-alvo:** equipes administrativas e operacionais com perfis diferenciados (Admin e Usuário).
+- **Autenticação:** JWT com expiração de 8 horas, armazenamento no `localStorage` e rotas protegidas no frontend.
 
-### 1️⃣ Configurar o Backend (.NET)
+> Na primeira execução o projeto já está pronto para uso: basta subir a API, iniciar o frontend e autenticar com as credenciais padrão listadas abaixo.
 
-```bash
-# Navegue até a pasta do backend
-cd baa-logistica-backend/BAALogistica.API
-
-# Restaurar dependências (primeira vez)
-dotnet restore
-
-# Executar a aplicação em HTTP (desenvolvimento)
-dotnet run --launch-profile http
-
-# OU em HTTPS (produção)
-dotnet run --launch-profile https
+## 🏗️ Arquitetura
+```
+┌─────────────────────────────────────┐
+│ Frontend (React + Vite)            │
+│ - Interface SPA                    │
+│ - Context API para autenticação    │
+│ - Axios para comunicação REST      │
+└──────────────┬──────────────────────┘
+               │ HTTP/JSON
+┌──────────────▼──────────────────────┐
+│ BAALogistica.API (ASP.NET Core)     │
+│ - Controllers RESTful               │
+│ - Swagger/OpenAPI                   │
+│ - Autenticação + Autorização JWT   │
+└──────────────┬──────────────────────┘
+               │ Usa
+┌──────────────▼──────────────────────┐
+│ Domain & Infrastructure (.NET)     │
+│ - Entidades e Regras de Negócio    │
+│ - EF Core + SQLite                 │
+│ - Seed inicial completo            │
+└─────────────────────────────────────┘
 ```
 
-**A API estará rodando em:**
-- HTTP: `http://localhost:5165`
-- HTTPS: `https://localhost:7094`
-
-**Swagger/OpenAPI disponível em:** `http://localhost:5165/swagger`
-
-### 2️⃣ Configurar o Frontend (React + Vite)
-
-Em outro terminal:
-
-```bash
-# Navegue até a pasta do frontend
-cd baa-logistica-frontend
-
-# Instalar dependências (primeira vez)
-npm install
-
-# Executar a aplicação
-npm run dev
-```
-
-**O Frontend estará rodando em:** `http://localhost:5173`
-
-## 🔐 Autenticação
-
-O sistema possui autenticação completa com JWT (JSON Web Token).
-
-### Credenciais Padrão
-
-Na primeira execução, um usuário administrador é criado automaticamente:
-
-- **Login:** `admin`
-- **Senha:** `admin123`
-- **Perfil:** Admin
-
-### Endpoints de Autenticação
-
-- `POST /api/auth/login` - Fazer login
-- `GET /api/auth/me` - Obter dados do usuário logado
-- `POST /api/auth/alterar-senha` - Alterar senha
-
-### Fluxo de Autenticação
-
-1. Usuário faz login com credenciais
-2. Sistema retorna um token JWT válido por 8 horas
-3. Token é armazenado no localStorage
-4. Token é enviado automaticamente em todas as requisições
-5. Rotas protegidas só são acessíveis com token válido
-
-## 📊 Banco de Dados
-
-O banco de dados SQLite será criado automaticamente na primeira execução em:
-```
-baa-logistica-backend/BAALogistica.API/baalogistica.db
-```
-
-### Dados Iniciais (Seed Data)
-
-O sistema já vem com alguns dados de exemplo:
-- **1 Usuário Admin** (login: admin, senha: admin123)
-- **1 Cliente de exemplo**
-- **1 Motorista ativo**
-- **1 Veículo disponível**
-
-## 🔍 Testando o Sistema
-
-### Via Swagger (Backend)
-
-1. Acesse `http://localhost:5165/swagger`
-2. Primeiro faça login usando o endpoint `/api/auth/login`
-3. Copie o token retornado
-4. Clique em "Authorize" no Swagger
-5. Cole o token no formato: `Bearer {seu-token}`
-6. Agora pode testar os endpoints protegidos
-
-### Via Interface (Frontend)
-
-1. Acesse `http://localhost:5173`
-2. Você será redirecionado automaticamente para a tela de login
-3. Entre com as credenciais padrão (admin/admin123)
-4. Navegue pelos menus:
-   - **Dashboard**: Visão geral do sistema
-   - **Motoristas**: Gerenciar motoristas
-   - **Veículos**: Gerenciar frota
-   - **Clientes**: Gerenciar clientes
-   - **Cargas**: Gerenciar cargas
-   - **Viagens**: Gerenciar viagens
-5. Use o botão "🔑 Alterar Senha" para mudar sua senha
-6. Use o botão "🚪 Sair" para fazer logout
-
-## 📁 Estrutura do Projeto
-
-```
-baa-logistica-backend/
-├── BAALogistica.API/               # API REST
-│   ├── Controllers/                # Controladores da API
-│   │   ├── AuthController.cs       # Autenticação
-│   │   ├── MotoristasController.cs
-│   │   ├── VeiculosController.cs
-│   │   └── ...
-│   ├── DTOs/                       # Data Transfer Objects
-│   └── Program.cs                  # Configuração da aplicação
-├── BAALogistica.Domain/            # Entidades de domínio
-│   └── Entities/
-│       ├── Usuario.cs              # Entidade de usuário
-│       ├── Motorista.cs
-│       └── ...
-└── BAALogistica.Infrastructure/    # Banco de dados
-    └── Data/
-        └── AppDbContext.cs         # Contexto do EF Core
-
-baa-logistica-frontend/
-├── src/
-│   ├── components/                 # Componentes React
-│   │   ├── Navbar.jsx              # Barra de navegação
-│   │   └── PrivateRoute.jsx        # Proteção de rotas
-│   ├── contexts/
-│   │   └── AuthContext.jsx         # Contexto de autenticação
-│   ├── pages/                      # Páginas principais
-│   │   ├── Login.jsx               # Tela de login
-│   │   ├── Dashboard.jsx           # Dashboard principal
-│   │   ├── AlterarSenha.jsx        # Alterar senha
-│   │   ├── Motoristas.jsx
-│   │   └── ...
-│   ├── services/                   # Serviços de API
-│   │   ├── api.js                  # Configuração Axios
-│   │   ├── authService.js          # Serviço de autenticação
-│   │   └── motoristasService.js
-│   └── App.jsx                     # Rotas da aplicação
-└── .env.development                # Variáveis de ambiente
-```
-
-## ⚙️ Configurações Importantes
-
-### Backend - appsettings.json
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Data Source=baalogistica.db"
-  },
-  "Jwt": {
-    "Key": "ChaveSecretaSuperSegura123!@#MinhaAPIBAALogistica2024",
-    "Issuer": "BAALogisticaAPI",
-    "Audience": "BAALogisticaApp"
-  }
-}
-```
-
-### Frontend - .env.development
-```env
-VITE_API_URL=http://localhost:5165/api
-```
-
-**⚠️ IMPORTANTE:** Se a porta do backend for diferente, ajuste a `VITE_API_URL`
-
-### Frontend - src/services/api.js
-```javascript
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5165/api',
-});
-
-// O token é adicionado automaticamente em todas as requisições
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-```
-
-## 🔧 Problemas Comuns
-
-### 1. Erro de CORS
-**Sintoma:** Erro "blocked by CORS policy"
-
-**Solução:** Verifique se o CORS está configurado no `Program.cs`:
-```csharp
-app.UseCors(); // Deve vir ANTES de app.UseHttpsRedirection()
-```
-
-### 2. Erro de Autenticação (401 Unauthorized)
-**Sintoma:** Requisições retornam erro 401
-
-**Soluções:**
-- Verifique se fez login corretamente
-- Verifique se o token está sendo enviado (veja no DevTools > Network > Headers)
-- Token pode ter expirado (válido por 8 horas)
-
-### 3. Banco de Dados não Cria
-**Sintoma:** Erro ao acessar o banco
-
-**Solução:**
-```bash
-cd BAALogistica.API
-# Deletar o banco antigo
-del baalogistica.db
-# Rodar novamente - será criado automaticamente
-dotnet run --launch-profile http
-```
-
-### 4. Frontend não conecta na API
-**Sintoma:** Erro de conexão, status 0
-
-**Soluções:**
-- Verifique se a API está rodando
-- Confirme a porta correta no `.env.development`
-- Verifique se não está com HTTPS redirection ativo
-
-### 5. Pacotes NuGet com erro de versão
-**Sintoma:** Erro de incompatibilidade de versão
-
-**Solução:**
-```bash
-cd BAALogistica.API
-dotnet remove package Microsoft.AspNetCore.Authentication.JwtBearer
-dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer --version 8.0.10
-```
-
-## 📦 Funcionalidades Implementadas
-
-### ✅ Sistema de Autenticação
-- [x] Login com usuário e senha
-- [x] JWT Token (válido por 8 horas)
-- [x] Rotas protegidas
-- [x] Logout
-- [x] Alterar senha
-- [x] Perfis de usuário (Admin, Usuario, Operador)
-- [x] Redirecionamento automático para login
-
-### ✅ Gestão de Motoristas
-- [x] CRUD completo (Create, Read, Update, Delete)
-- [x] Validação de CPF e CNH únicos
-- [x] Validação de CNH vencida
-- [x] Filtros por status e busca
-- [x] Listagem de motoristas disponíveis
-
-### ✅ Gestão de Veículos
-- [x] CRUD completo
-- [x] Controle de status (Disponível, Em Viagem, Manutenção)
-- [x] Registro de manutenções
-- [x] Validação de placa única
-
-### ✅ Gestão de Cargas
-- [x] CRUD completo
-- [x] Vínculo com clientes
-- [x] Histórico de status
-- [x] Número de protocolo único
-
-### ✅ Gestão de Viagens
-- [x] CRUD completo
-- [x] Vínculo motorista + veículo + carga
-- [x] Controle de status
-- [x] Registro de despesas
-- [x] Cálculo de valores
-
-### ✅ Gestão de Clientes
-- [x] CRUD completo
-- [x] Validação de CNPJ/CPF
-- [x] Histórico de cargas
-
-### ✅ Interface
-- [x] Dashboard com estatísticas
-- [x] Design moderno e responsivo
-- [x] Feedback visual de ações
-- [x] Filtros e buscas
-- [x] Validações em tempo real
-
-## 🎓 Arquitetura e Tecnologias
-
+## 🧰 Tecnologias Utilizadas
 ### Backend
-- **Framework:** ASP.NET Core 8.0
-- **ORM:** Entity Framework Core
-- **Banco de Dados:** SQLite
-- **Autenticação:** JWT (JSON Web Token)
-- **Hash de Senha:** BCrypt
-- **Documentação:** Swagger/OpenAPI
+- ASP.NET Core 8 (Web API)
+- Entity Framework Core + SQLite
+- JWT Bearer Authentication
+- BCrypt para hash de senha
+- Swagger/OpenAPI para documentação
 
 ### Frontend
-- **Framework:** React 18
-- **Build Tool:** Vite
-- **Roteamento:** React Router v6
-- **HTTP Client:** Axios
-- **Gerenciamento de Estado:** Context API
-- **Estilização:** CSS Modules
+- React 18 com Vite
+- React Router DOM v6
+- Context API para sessão
+- Axios para chamadas HTTP
+- Tailwind CSS + CSS Modules
+- Lucide Icons e date-fns
 
-### Padrões e Boas Práticas
-- Clean Architecture
-- Repository Pattern
-- Dependency Injection
-- DTOs (Data Transfer Objects)
-- RESTful API
-- SPA (Single Page Application)
+## ✅ Pré-requisitos
+| Tecnologia | Versão recomendada | Download |
+|------------|--------------------|----------|
+| .NET SDK   | 8.x                | [dotnet.microsoft.com/download](https://dotnet.microsoft.com/download) |
+| Node.js    | >= 18              | [nodejs.org](https://nodejs.org/) |
+| npm        | incluído com Node  | – |
+| Editor     | VS Code (recomendado) | [code.visualstudio.com](https://code.visualstudio.com/) |
 
-## 🚀 Próximos Passos (Melhorias Futuras)
+> **Dica:** em ambientes Windows, execute o terminal como administrador para permitir que o SQLite crie o arquivo `baalogistica.db` sem restrições de permissão.
 
-1. **Gestão de Usuários (Admin)**
-   - [ ] CRUD de usuários
-   - [ ] Controle de permissões granular
-   - [ ] Registro de atividades (logs)
+## ⚡ Guia Rápido de Execução
+Abra dois terminais separados – um para o backend e outro para o frontend.
 
-2. **Relatórios Avançados**
-   - [ ] Exportação para PDF/Excel
-   - [ ] Gráficos mais detalhados
-   - [ ] Relatórios customizáveis
+### Backend (.NET)
+```bash
+cd baa-logistica-backend/BAALogistica.API
 
-3. **Rastreamento em Tempo Real**
-   - [ ] Integração com GPS
-   - [ ] Mapa de localização das viagens
-   - [ ] Previsão de chegada
+dotnet restore         # instala dependências
 
-4. **Notificações**
-   - [ ] Alertas de manutenção preventiva
-   - [ ] Avisos de CNH vencida
-   - [ ] Notificações push
+dotnet run --launch-profile http   # executa em http://localhost:5165
+# ou: dotnet run --launch-profile https  -> https://localhost:7094
+```
+A API expõe o Swagger em `http://localhost:5165/swagger`.
 
-5. **Mobile App**
-   - [ ] App para motoristas
-   - [ ] Registro de despesas em viagem
-   - [ ] Check-in/Check-out
+### Frontend (React)
+```bash
+cd baa-logistica-frontend
 
-6. **Integrações**
-   - [ ] API de cálculo de rotas (Google Maps)
-   - [ ] Integração com ERP
-   - [ ] API de consulta de veículos (DETRAN)
+npm install    # instala dependências
+npm run dev    # roda em http://localhost:5173
+```
+O Vite exibirá um QR code e URLs alternativas caso deseje testar em dispositivos móveis na mesma rede.
 
-## 📞 Suporte
+## 🛠️ Configuração de Ambiente
+| Variável/AppSetting            | Descrição | Default | Onde configurar |
+|--------------------------------|-----------|---------|-----------------|
+| `ConnectionStrings:DefaultConnection` | Caminho do SQLite | `baalogistica.db` | `appsettings.json` ou variável de ambiente `ConnectionStrings__DefaultConnection` |
+| `Jwt:Key`                      | Chave secreta para assinar tokens | `ChaveSecretaSuperSegura123!@#MinhaAPIBAALogistica2024` | `appsettings.*.json` ou `Jwt__Key` |
+| `Jwt:Issuer`                   | Emissor válido | `BAALogisticaAPI` | `Jwt__Issuer` |
+| `Jwt:Audience`                 | Audiência válida | `BAALogisticaApp` | `Jwt__Audience` |
 
-Para dúvidas sobre o projeto acadêmico, entre em contato com:
-- **Professor:** Thiago Giroto Milani
-- **Instituição:** Centro Universitário da Fundação Herminio Ometto
-- **Curso:** Engenharia da Computação
+Para ambientes produtivos, substitua os valores padrão via variáveis de ambiente antes de publicar a API. O ASP.NET Core já converte `:` em `__` automaticamente.
 
-## 📄 Licença
+## 🗄️ Banco de Dados e Seed
+- O SQLite é criado automaticamente ao iniciar a API (`EnsureCreated`).
+- Dados iniciais garantem uma experiência pronta para demonstração:
+  - **Usuário Admin:** login `admin` / senha `admin123`
+  - **Usuário Operacional:** login `usuario` / senha `usuario123`
+  - Cliente, motorista, veículo, carga e viagem de exemplo
+- Para resetar o banco local basta excluir os arquivos `baalogistica.db` e `baalogistica.db-wal` na pasta `BAALogistica.API` e reiniciar a aplicação.
 
-Projeto acadêmico desenvolvido para a empresa B.A.A Logística como parte da atividade de extensão universitária.
+## 🧾 Scripts Disponíveis
+### Backend
+- `dotnet restore` – instala dependências.
+- `dotnet run --launch-profile http|https` – executa a API.
+- `dotnet watch run` – hot reload (caso tenha o .NET SDK completo instalado).
 
----
+### Frontend
+- `npm run dev` – modo desenvolvimento com hot reload.
+- `npm run build` – build de produção em `dist/`.
+- `npm run preview` – serve o build gerado.
+- `npm run lint` – análise estática com ESLint.
 
-**Desenvolvido por:** Alunos do curso de Engenharia da Computação  
-**Ano:** 2025  
-**Versão:** 2.0.0 (com Sistema de Autenticação)
-
-## 🎯 Changelog
-
-### v2.0.0 - Sistema de Autenticação
-- ✅ Implementado sistema completo de login/logout
-- ✅ JWT para sessões seguras
-- ✅ Rotas protegidas no frontend
-- ✅ Alteração de senha
-- ✅ Perfis de usuário
-
-### v1.0.0 - Versão Inicial
-- ✅ CRUD de todas as entidades
-- ✅ Interface responsiva
-- ✅ Dashboard com estatísticas
+## 🗂️ Estrutura do Projeto
+```
+projeto_faculdade/
+├── README.md                     # Este guia
+├── baa-logistica-backend/
+│   ├── BAALogistica.API/         # Web API (Controllers, DTOs, Program.cs)
+│   ├── BAALogistica.Domain/      # Entidades e regras de negócio
+│   └── BAALogistica.Infrastructure/  # DbContext, configurações EF Core e seed
+└── baa-logistica-frontend/
+    ├── src/                      # Páginas, componentes, hooks e serviços Axios
+    ├── public/                   # Assets estáticos
+    └── vite.config.js            # Configuração do bundler
 ```
 
----
+## 🚀 Principais Funcionalidades
+- Autenticação com JWT (login, logout, alteração de senha)
+- Gestão de usuários (cadastro, redefinição de senha, ativação/desativação)
+- CRUD completo de clientes, motoristas, veículos e cargas
+- Planejamento de viagens com vínculo motorista + veículo + carga
+- Registro de despesas de viagem e histórico de status das cargas
+- Dashboard com indicadores operacionais
+- Interface responsiva com feedback visual e filtros
 
-## ✅ Alterações Principais:
+## 🔗 Endpoints Essenciais
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| `POST` | `/api/auth/login` | Autentica usuário e retorna JWT |
+| `GET`  | `/api/auth/me` | Retorna dados do usuário logado |
+| `POST` | `/api/auth/alterar-senha` | Permite troca de senha pelo próprio usuário |
+| `GET`  | `/api/usuarios` | Lista usuários (necessário token e perfil autorizado) |
+| `POST` | `/api/usuarios` | Cria novo usuário (somente Admin) |
+| `PUT`  | `/api/usuarios/{id}/senha` | Redefine senha de um usuário |
+| `PATCH`/`PUT` | `/api/usuarios/{id}/status` | Ativa ou desativa login de um usuário |
+| `GET`  | `/api/dashboard` | Indicadores gerais para o painel |
+| `GET`/`POST`/`PUT`/`DELETE` | `/api/clientes`, `/api/motoristas`, `/api/veiculos`, `/api/cargas`, `/api/viagens` | CRUDs principais |
 
-1. ✅ **Adicionada seção de Autenticação** com credenciais padrão
-2. ✅ **Portas corretas** (5165 para HTTP, 7094 para HTTPS)
-3. ✅ **Endpoints de autenticação** documentados
-4. ✅ **Fluxo de autenticação** explicado
-5. ✅ **Estrutura de pastas atualizada** com novos arquivos
-6. ✅ **Problemas comuns de autenticação** adicionados
-7. ✅ **Funcionalidades de auth marcadas como implementadas**
-8. ✅ **Tecnologias de autenticação** (JWT, BCrypt) listadas
-9. ✅ **Changelog** com versão 2.0.0
-10. ✅ **Instruções de teste via Swagger** com autenticação
+Para explorar todos os endpoints, utilize o Swagger ou o arquivo `BAALogistica.API.http` (VS Code/Visual Studio).
 
-📝🚀
+## 🧪 Testes e Qualidade
+- O projeto ainda não possui suíte automatizada de testes. Recomenda-se iniciar com testes de unidade para regras de negócio e testes de integração para os controllers.
+- Utilize `npm run lint` para manter o frontend aderente às regras de estilo e `dotnet format` (caso instalado) para padronização do backend.
+
+## 🆘 Resolução de Problemas
+| Sintoma | Possível causa | Solução |
+|---------|----------------|---------|
+| `404` ao tentar atualizar status de usuário | API não estava em execução ou requisição enviada para o verbo errado | Confirme que o backend está rodando em `http://localhost:5165` e envie `PUT` ou `PATCH` para `/api/usuarios/{id}/status` |
+| `SQLITE_BUSY` ou arquivo bloqueado | Banco em uso por outro processo | Feche instâncias anteriores e reinicie a API. Em último caso, exclua os arquivos `.db` e `.db-wal` |
+| `401 Unauthorized` nas rotas protegidas | Token expirado ou ausente | Faça login novamente e garanta que o header `Authorization: Bearer <token>` está presente |
+| Falha ao instalar dependências Node | Cache corrompido | Rode `npm cache clean --force` e tente `npm install` novamente |
+
+## 👥 Créditos e Licença
+Projeto acadêmico desenvolvido pelos alunos do curso de Engenharia da Computação (FHO) para a empresa parceira B.A.A Logística.
+
+- **Professor orientador:** Thiago Giroto Milani
+- **Ano:** 2025
+- **Versão atual:** 2.0.0 (inclui sistema de autenticação)
+
+Distribuído para fins educacionais. Adapte conforme necessário para produção, substituindo segredos, adicionando migrations e configurando logs persistentes.
