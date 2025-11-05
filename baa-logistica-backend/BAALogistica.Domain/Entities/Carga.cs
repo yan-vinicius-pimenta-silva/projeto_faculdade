@@ -26,7 +26,7 @@ public class Carga
     public string? Observacoes { get; set; }
 
     // Relacionamentos
-    public Cliente Cliente { get; set; } = null!;
+    public Cliente? Cliente { get; set; }
     public ICollection<Viagem> Viagens { get; set; } = new List<Viagem>();
     public ICollection<HistoricoStatusCarga> Historicos { get; set; } = new List<HistoricoStatusCarga>();
 }
