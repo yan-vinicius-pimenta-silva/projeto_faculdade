@@ -83,7 +83,7 @@ public class CargasController : ControllerBase
         }
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<ActionResult<Carga>> GetCarga(int id)
     {
         try
