@@ -7,6 +7,7 @@ using BAALogistica.Domain.Entities;
 using BAALogistica.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace BAALogistica.API.Controllers;
 
@@ -28,11 +29,15 @@ public class CargasController : ControllerBase
     {
         try
         {
-            var query = _context.Cargas.Include(c => c.Cliente).AsQueryable();
+            var query = _context.Cargas
+                .AsNoTracking()
+                .Include(c => c.Cliente)
+                .AsQueryable();
 
             if (!string.IsNullOrEmpty(status))
             {
-                query = query.Where(c => c.Status == status);
+                var normalizedStatus = status.Trim().ToLower();
+                query = query.Where(c => c.Status != null && c.Status.ToLower() == normalizedStatus);
             }
 
             var cargas = await query.OrderByDescending(c => c.DataCadastro).ToListAsync();
@@ -42,6 +47,45 @@ public class CargasController : ControllerBase
         {
             _logger.LogError(ex, "Erro ao buscar cargas");
             return StatusCode(500, "Erro interno ao buscar cargas");
+        }
+    }
+
+    [HttpGet("disponiveis")]
+    public async Task<ActionResult<IEnumerable<object>>> GetCargasDisponiveis()
+    {
+        try
+        {
+            var cargasDisponiveis = await _context.Cargas
+                .AsNoTracking()
+                .Include(c => c.Cliente)
+                .Where(c => !c.Viagens.Any(v =>
+                    v.Status != null &&
+                    !string.Equals(v.Status, "Concluída", StringComparison.OrdinalIgnoreCase) &&
+                    !string.Equals(v.Status, "Cancelada", StringComparison.OrdinalIgnoreCase)))
+                .OrderByDescending(c => c.DataCadastro)
+                .Select(c => new
+                {
+                    c.Id,
+                    c.NumeroProtocolo,
+                    c.DescricaoCarga,
+                    c.TipoCarga,
+                    c.CidadeColeta,
+                    c.CidadeEntrega,
+                    c.Status,
+                    Cliente = c.Cliente == null ? null : new
+                    {
+                        c.Cliente.Id,
+                        c.Cliente.RazaoSocial
+                    }
+                })
+                .ToListAsync();
+
+            return Ok(cargasDisponiveis);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao buscar cargas disponíveis");
+            return StatusCode(500, "Erro interno ao buscar cargas disponíveis");
         }
     }
 
@@ -114,11 +158,6 @@ public class CargasController : ControllerBase
             }
 
             var numeroProtocolo = request.NumeroProtocolo.Trim();
-
-            if (await _context.Cargas.AnyAsync(c => c.NumeroProtocolo == numeroProtocolo))
-            {
-                return BadRequest(new { message = "Número de protocolo já existe" });
-            }
 
             var carga = new Carga
             {
@@ -200,11 +239,6 @@ public class CargasController : ControllerBase
 
             if (!string.Equals(cargaExistente.NumeroProtocolo, numeroProtocolo, StringComparison.OrdinalIgnoreCase))
             {
-                if (await _context.Cargas.AnyAsync(c => c.NumeroProtocolo == numeroProtocolo && c.Id != id))
-                {
-                    return BadRequest(new { message = "Número de protocolo já existe" });
-                }
-
                 cargaExistente.NumeroProtocolo = numeroProtocolo;
             }
 

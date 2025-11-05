@@ -36,8 +36,6 @@ public class AppDbContext : DbContext
             entity.Property(e => e.CategoriaCNH).IsRequired().HasMaxLength(5);
             entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Ativo");
             
-            entity.HasIndex(e => e.CPF).IsUnique();
-            entity.HasIndex(e => e.CNH).IsUnique();
             entity.HasIndex(e => e.Status);
         });
 
@@ -53,7 +51,6 @@ public class AppDbContext : DbContext
             entity.Property(e => e.CapacidadeVolume).HasColumnType("decimal(10,2)");
             entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Disponível");
             
-            entity.HasIndex(e => e.Placa).IsUnique();
             entity.HasIndex(e => e.Status);
         });
 
@@ -67,8 +64,6 @@ public class AppDbContext : DbContext
             entity.Property(e => e.CPF).HasMaxLength(14);
             entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Ativo");
             
-            entity.HasIndex(e => e.CNPJ).IsUnique();
-            entity.HasIndex(e => e.CPF).IsUnique();
         });
 
         // Configuração de Carga
@@ -85,7 +80,6 @@ public class AppDbContext : DbContext
             entity.Property(e => e.EnderecoEntrega).IsRequired().HasMaxLength(200);
             entity.Property(e => e.Status).HasMaxLength(30).HasDefaultValue("Aguardando");
             
-            entity.HasIndex(e => e.NumeroProtocolo).IsUnique();
             entity.HasIndex(e => e.Status);
             entity.HasIndex(e => e.ClienteId);
 
@@ -103,7 +97,6 @@ public class AppDbContext : DbContext
             entity.Property(e => e.ValorFrete).HasColumnType("decimal(12,2)");
             entity.Property(e => e.Status).HasMaxLength(30).HasDefaultValue("Planejada");
             
-            entity.HasIndex(e => e.NumeroViagem).IsUnique();
             entity.HasIndex(e => e.Status);
             entity.HasIndex(e => e.MotoristaId);
             entity.HasIndex(e => e.VeiculoId);

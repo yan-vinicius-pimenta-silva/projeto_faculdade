@@ -97,49 +97,8 @@ public class MotoristasController : ControllerBase
                 return BadRequest(new { message = "Nome é obrigatório" });
             }
 
-            if (string.IsNullOrWhiteSpace(motorista.CPF))
-            {
-                return BadRequest(new { message = "CPF é obrigatório" });
-            }
-
-            if (string.IsNullOrWhiteSpace(motorista.CNH))
-            {
-                return BadRequest(new { message = "CNH é obrigatória" });
-            }
-
-            if (string.IsNullOrWhiteSpace(motorista.CategoriaCNH))
-            {
-                return BadRequest(new { message = "Categoria CNH é obrigatória" });
-            }
-
-            // Validar data de admissão
-            if (motorista.DataAdmissao == default(DateTime))
-            {
-                return BadRequest(new { message = "Data de admissão é obrigatória" });
-            }
-
-            // Validar data de validade da CNH
-            if (motorista.ValidadeCNH == default(DateTime))
-            {
-                return BadRequest(new { message = "Validade da CNH é obrigatória" });
-            }
-
-            if (motorista.ValidadeCNH < DateTime.Now.Date)
-            {
-                return BadRequest(new { message = "CNH está vencida. Por favor, informe uma data futura." });
-            }
-
-            // Validar CPF único
-            if (await _context.Motoristas.AnyAsync(m => m.CPF == motorista.CPF))
-            {
-                return BadRequest(new { message = "CPF já cadastrado" });
-            }
-
-            // Validar CNH única
-            if (await _context.Motoristas.AnyAsync(m => m.CNH == motorista.CNH))
-            {
-                return BadRequest(new { message = "CNH já cadastrada" });
-            }
+            // Os documentos podem conter valores fictícios para fins de demonstração,
+            // portanto não realizamos validações de formato ou autenticidade aqui.
 
             // Garantir que o Id seja 0 para novo registro
             motorista.Id = 0;
@@ -188,24 +147,6 @@ public class MotoristasController : ControllerBase
             if (string.IsNullOrWhiteSpace(motorista.Nome))
             {
                 return BadRequest(new { message = "Nome é obrigatório" });
-            }
-
-            // Validar CPF único (exceto o próprio motorista)
-            if (await _context.Motoristas.AnyAsync(m => m.CPF == motorista.CPF && m.Id != id))
-            {
-                return BadRequest(new { message = "CPF já cadastrado para outro motorista" });
-            }
-
-            // Validar CNH única (exceto o próprio motorista)
-            if (await _context.Motoristas.AnyAsync(m => m.CNH == motorista.CNH && m.Id != id))
-            {
-                return BadRequest(new { message = "CNH já cadastrada para outro motorista" });
-            }
-
-            // Validar data de validade da CNH
-            if (motorista.ValidadeCNH < DateTime.Now.Date)
-            {
-                return BadRequest(new { message = "CNH está vencida" });
             }
 
             // Atualizar campos
