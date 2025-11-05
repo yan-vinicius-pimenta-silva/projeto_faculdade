@@ -1,11 +1,13 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5165/api';
+const rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5165/api';
+const normalizedApiUrl = rawApiUrl.replace(/\/+$/, '');
+const baseURL = `${normalizedApiUrl}/`;
 
-console.log('🔗 Conectando na API:', API_URL);
+console.log('🔗 Conectando na API:', baseURL);
 
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -15,6 +17,10 @@ const api = axios.create({
 // ✅ Interceptor para adicionar token em todas as requisições
 api.interceptors.request.use(
   (config) => {
+    if (typeof config.url === 'string' && config.url.startsWith('/')) {
+      config.url = config.url.slice(1);
+    }
+
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -42,7 +48,7 @@ api.interceptors.response.use(
       console.error('Status:', error.response.status);
     } else if (error.request) {
       console.error('❌ Erro na requisição:', error.request);
-      console.error('Verifique se a API está rodando em:', API_URL);
+      console.error('Verifique se a API está rodando em:', baseURL);
     } else {
       console.error('❌ Erro:', error.message);
     }
