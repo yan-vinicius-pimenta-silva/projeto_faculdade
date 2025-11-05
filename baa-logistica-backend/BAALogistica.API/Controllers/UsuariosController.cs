@@ -166,8 +166,7 @@ public class UsuariosController : ControllerBase
         }
     }
 
-    [HttpPatch("{id:int}/status")]
-    [HttpPut("{id:int}/status")]
+    [HttpPatch("{id}/status")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AtualizarStatusUsuario(int id, [FromBody] UpdateUsuarioStatusRequest request)
     {
