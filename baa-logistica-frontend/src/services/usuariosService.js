@@ -14,5 +14,10 @@ export const usuariosService = {
   async updatePassword(usuarioId, novaSenha) {
     const response = await api.put(`/usuarios/${usuarioId}/senha`, { novaSenha });
     return response.data;
+  },
+
+  async updateStatus(usuarioId, ativo) {
+    const response = await api.patch(`/usuarios/${usuarioId}/status`, { ativo });
+    return response.data;
   }
 };

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using BAALogistica.API.DTOs;
 using BAALogistica.Domain.Entities;
 using BAALogistica.Infrastructure.Data;
@@ -162,6 +163,62 @@ public class UsuariosController : ControllerBase
         {
             _logger.LogError(ex, "Erro ao atualizar senha do usuário {UsuarioId}", id);
             return StatusCode(500, new { message = "Erro interno ao atualizar senha do usuário" });
+        }
+    }
+
+    [HttpPatch("{id}/status")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> AtualizarStatusUsuario(int id, [FromBody] UpdateUsuarioStatusRequest request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        if (request.Ativo is null)
+        {
+            return BadRequest(new { message = "Informe o status desejado para o usuário." });
+        }
+
+        try
+        {
+            var usuario = await _context.Usuarios.FindAsync(id);
+
+            if (usuario == null)
+            {
+                return NotFound(new { message = "Usuário não encontrado" });
+            }
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim != null && int.TryParse(userIdClaim, out var usuarioLogadoId))
+            {
+                if (usuarioLogadoId == usuario.Id && request.Ativo.Value == false)
+                {
+                    return BadRequest(new { message = "Você não pode desativar o próprio acesso." });
+                }
+            }
+
+            usuario.Ativo = request.Ativo.Value;
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation(
+                "Status do usuário {Login} atualizado para {Status} por {Admin}",
+                usuario.Login,
+                usuario.Ativo ? "Ativo" : "Inativo",
+                User.Identity?.Name ?? "desconhecido");
+
+            return Ok(new
+            {
+                message = usuario.Ativo
+                    ? "Usuário ativado com sucesso."
+                    : "Usuário desativado com sucesso.",
+                ativo = usuario.Ativo
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao atualizar status do usuário {UsuarioId}", id);
+            return StatusCode(500, new { message = "Erro interno ao atualizar status do usuário" });
         }
     }
 }

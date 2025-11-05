@@ -1,12 +1,14 @@
 // ============================================
 // src/pages/Usuarios.jsx
 // ============================================
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Card from '../components/common/Card';
 import Table from '../components/common/Table';
 import Input from '../components/common/Input';
 import Select from '../components/common/Select';
 import Button from '../components/common/Button';
+import Modal from '../components/common/Modal';
+import StatusBadge from '../components/common/StatusBadge';
 import { usuariosService } from '../services/usuariosService';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -46,6 +48,24 @@ const Usuarios = () => {
     cargo: '',
     perfil: 'Usuario'
   });
+  const [tableFeedback, setTableFeedback] = useState({ type: '', message: '' });
+  const [passwordModal, setPasswordModal] = useState({
+    isOpen: false,
+    usuario: null
+  });
+  const [passwordModalData, setPasswordModalData] = useState({
+    novaSenha: '',
+    confirmarSenha: ''
+  });
+  const [passwordModalError, setPasswordModalError] = useState('');
+  const [passwordModalLoading, setPasswordModalLoading] = useState(false);
+  const [statusModal, setStatusModal] = useState({
+    isOpen: false,
+    usuario: null,
+    targetStatus: true
+  });
+  const [statusModalError, setStatusModalError] = useState('');
+  const [statusModalLoading, setStatusModalLoading] = useState(false);
 
   useEffect(() => {
     carregarUsuarios();
@@ -59,7 +79,7 @@ const Usuarios = () => {
     } catch (error) {
       console.error('Erro ao carregar usuários', error);
       const message = error.response?.data?.message || 'Erro ao carregar usuários';
-      setFeedback({ type: 'error', message });
+      setTableFeedback({ type: 'error', message });
     } finally {
       setLoading(false);
     }
@@ -84,6 +104,117 @@ const Usuarios = () => {
     });
   };
 
+  const openPasswordModal = useCallback((usuario) => {
+    setTableFeedback({ type: '', message: '' });
+    setPasswordModal({
+      isOpen: true,
+      usuario
+    });
+    setPasswordModalData({ novaSenha: '', confirmarSenha: '' });
+    setPasswordModalError('');
+  }, []);
+
+  const closePasswordModal = useCallback(() => {
+    setPasswordModal({ isOpen: false, usuario: null });
+    setPasswordModalData({ novaSenha: '', confirmarSenha: '' });
+    setPasswordModalError('');
+    setPasswordModalLoading(false);
+  }, []);
+
+  const handlePasswordModalChange = (event) => {
+    const { name, value } = event.target;
+    setPasswordModalData((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+    setPasswordModalError('');
+  };
+
+  const handlePasswordModalSubmit = async (event) => {
+    event.preventDefault();
+
+    if (!passwordModal.usuario) {
+      setPasswordModalError('Selecione um usuário válido.');
+      return;
+    }
+
+    if (passwordModalData.novaSenha.length < 6) {
+      setPasswordModalError('A nova senha deve ter pelo menos 6 caracteres.');
+      return;
+    }
+
+    if (passwordModalData.novaSenha !== passwordModalData.confirmarSenha) {
+      setPasswordModalError('As senhas informadas não coincidem.');
+      return;
+    }
+
+    try {
+      setPasswordModalLoading(true);
+      await usuariosService.updatePassword(passwordModal.usuario.id, passwordModalData.novaSenha);
+      await carregarUsuarios();
+
+      const nomeUsuario = passwordModal.usuario?.nome || 'usuário';
+      setTableFeedback({
+        type: 'success',
+        message: `Senha de ${nomeUsuario} atualizada com sucesso.`
+      });
+      closePasswordModal();
+    } catch (error) {
+      const message =
+        typeof error === 'string'
+          ? error
+          : error?.response?.data?.message || 'Erro ao atualizar a senha do usuário.';
+      setPasswordModalError(message);
+    } finally {
+      setPasswordModalLoading(false);
+    }
+  };
+
+  const openStatusModal = useCallback((usuario) => {
+    setTableFeedback({ type: '', message: '' });
+    setStatusModal({
+      isOpen: true,
+      usuario,
+      targetStatus: !usuario.ativo
+    });
+    setStatusModalError('');
+  }, []);
+
+  const closeStatusModal = useCallback(() => {
+    setStatusModal({ isOpen: false, usuario: null, targetStatus: true });
+    setStatusModalError('');
+    setStatusModalLoading(false);
+  }, []);
+
+  const handleConfirmStatusChange = async () => {
+    if (!statusModal.usuario) {
+      setStatusModalError('Selecione um usuário válido.');
+      return;
+    }
+
+    try {
+      setStatusModalLoading(true);
+      await usuariosService.updateStatus(statusModal.usuario.id, statusModal.targetStatus);
+      await carregarUsuarios();
+
+      const nomeUsuario = statusModal.usuario?.nome || 'usuário';
+      const actionMessage = statusModal.targetStatus ? 'ativado' : 'desativado';
+      setTableFeedback({
+        type: 'success',
+        message: `Login de ${nomeUsuario} ${actionMessage} com sucesso.`
+      });
+      closeStatusModal();
+    } catch (error) {
+      const message =
+        typeof error === 'string'
+          ? error
+          : error?.response?.data?.message || 'Erro ao atualizar status do usuário.';
+      setStatusModalError(message);
+    } finally {
+      setStatusModalLoading(false);
+    }
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -94,6 +225,7 @@ const Usuarios = () => {
     try {
       setIsSubmitting(true);
       setFeedback({ type: '', message: '' });
+      setTableFeedback({ type: '', message: '' });
 
       const payload = {
         nome: formData.nome,
@@ -128,28 +260,67 @@ const Usuarios = () => {
     }
   };
 
-  const columns = useMemo(() => [
-    { header: 'Nome', accessor: 'nome' },
-    { header: 'E-mail', accessor: 'email' },
-    { header: 'Login', accessor: 'login' },
-    {
-      header: 'Perfil',
-      render: (row) => (row.perfil === 'Admin' ? 'Administrador' : 'Usuário padrão')
-    },
-    { header: 'Cargo', accessor: 'cargo' },
-    {
-      header: 'Criado em',
-      render: (row) => formatDateTime(row.dataCriacao)
-    },
-    {
-      header: 'Último acesso',
-      render: (row) => formatDateTime(row.dataUltimoAcesso)
-    },
-    {
-      header: 'Status',
-      render: (row) => (row.ativo ? 'Ativo' : 'Inativo')
+  const columns = useMemo(() => {
+    const baseColumns = [
+      { header: 'Nome', accessor: 'nome' },
+      { header: 'E-mail', accessor: 'email' },
+      { header: 'Login', accessor: 'login' },
+      {
+        header: 'Perfil',
+        render: (row) => (row.perfil === 'Admin' ? 'Administrador' : 'Usuário padrão')
+      },
+      { header: 'Cargo', accessor: 'cargo' },
+      {
+        header: 'Criado em',
+        render: (row) => formatDateTime(row.dataCriacao)
+      },
+      {
+        header: 'Último acesso',
+        render: (row) => formatDateTime(row.dataUltimoAcesso)
+      },
+      {
+        header: 'Status',
+        render: (row) => <StatusBadge status={row.ativo ? 'Ativo' : 'Inativo'} />
+      }
+    ];
+
+    if (isAdmin) {
+      baseColumns.push({
+        header: 'Ações',
+        render: (row) => {
+          const isCurrentUser = user?.email && row.email === user.email;
+
+          return (
+            <div className="table-actions">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  openPasswordModal(row);
+                }}
+              >
+                Redefinir senha
+              </Button>
+              <Button
+                size="sm"
+                variant={row.ativo ? 'danger' : 'success'}
+                disabled={isCurrentUser}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  openStatusModal(row);
+                }}
+              >
+                {row.ativo ? 'Desativar login' : 'Ativar login'}
+              </Button>
+            </div>
+          );
+        }
+      });
     }
-  ], []);
+
+    return baseColumns;
+  }, [isAdmin, openPasswordModal, openStatusModal, user?.email]);
 
   return (
     <div className="page-shell">
@@ -164,6 +335,17 @@ const Usuarios = () => {
 
       <div className="page-content-stack">
         <Card title="Usuários cadastrados">
+          {tableFeedback.message && (
+            <div
+              className={`alert ${
+                tableFeedback.type === 'success' ? 'alert--success' : 'alert--error'
+              }`}
+              role="status"
+            >
+              {tableFeedback.message}
+            </div>
+          )}
+
           {loading ? (
             <p>Carregando usuários...</p>
           ) : (
@@ -244,6 +426,107 @@ const Usuarios = () => {
           )}
         </Card>
       </div>
+
+      <Modal
+        isOpen={passwordModal.isOpen}
+        onClose={closePasswordModal}
+        title="Redefinir senha do usuário"
+        size="sm"
+      >
+        {passwordModal.usuario && (
+          <form onSubmit={handlePasswordModalSubmit} className="form-grid form-grid--two">
+            <div className="form-grid__item--span-all">
+              <p className="muted-text">
+                Defina uma nova senha para <strong>{passwordModal.usuario.nome}</strong>.
+              </p>
+            </div>
+
+            <Input
+              label="Nova senha"
+              name="novaSenha"
+              type="password"
+              value={passwordModalData.novaSenha}
+              onChange={handlePasswordModalChange}
+              placeholder="Mínimo de 6 caracteres"
+              required
+              autoComplete="new-password"
+            />
+
+            <Input
+              label="Confirmar nova senha"
+              name="confirmarSenha"
+              type="password"
+              value={passwordModalData.confirmarSenha}
+              onChange={handlePasswordModalChange}
+              placeholder="Repita a nova senha"
+              required
+              autoComplete="new-password"
+            />
+
+            {passwordModalError && (
+              <div className="form-grid__item--span-all">
+                <div className="alert alert--error">⚠️ {passwordModalError}</div>
+              </div>
+            )}
+
+            <div className="form-grid__item--span-all">
+              <div className="form-actions">
+                <Button type="button" variant="secondary" onClick={closePasswordModal} disabled={passwordModalLoading}>
+                  Cancelar
+                </Button>
+                <Button type="submit" disabled={passwordModalLoading}>
+                  {passwordModalLoading ? 'Salvando...' : 'Salvar nova senha'}
+                </Button>
+              </div>
+            </div>
+          </form>
+        )}
+      </Modal>
+
+      <Modal
+        isOpen={statusModal.isOpen}
+        onClose={closeStatusModal}
+        title={statusModal.targetStatus ? 'Ativar login do usuário' : 'Desativar login do usuário'}
+        size="sm"
+      >
+        {statusModal.usuario && (
+          <div className="form-grid form-grid--two">
+            <div className="form-grid__item--span-all">
+              <p>
+                Confirma que deseja {statusModal.targetStatus ? 'ativar' : 'desativar'} o acesso de
+                {' '}
+                <strong>{statusModal.usuario.nome}</strong>?
+              </p>
+            </div>
+
+            {statusModalError && (
+              <div className="form-grid__item--span-all">
+                <div className="alert alert--error">⚠️ {statusModalError}</div>
+              </div>
+            )}
+
+            <div className="form-grid__item--span-all">
+              <div className="form-actions">
+                <Button type="button" variant="secondary" onClick={closeStatusModal} disabled={statusModalLoading}>
+                  Cancelar
+                </Button>
+                <Button
+                  type="button"
+                  variant={statusModal.targetStatus ? 'success' : 'danger'}
+                  onClick={handleConfirmStatusChange}
+                  disabled={statusModalLoading}
+                >
+                  {statusModalLoading
+                    ? 'Processando...'
+                    : statusModal.targetStatus
+                      ? 'Ativar login'
+                      : 'Desativar login'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
