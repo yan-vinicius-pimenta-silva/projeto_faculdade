@@ -17,7 +17,7 @@ export const usuariosService = {
   },
 
   async updateStatus(usuarioId, ativo) {
-    const response = await api.put(`/usuarios/${usuarioId}/status`, { ativo });
+    const response = await api.patch(`/usuarios/${usuarioId}/status`, { ativo });
     return response.data;
   }
 };
