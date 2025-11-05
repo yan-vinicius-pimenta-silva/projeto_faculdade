@@ -115,11 +115,6 @@ public class CargasController : ControllerBase
 
             var numeroProtocolo = request.NumeroProtocolo.Trim();
 
-            if (await _context.Cargas.AnyAsync(c => c.NumeroProtocolo == numeroProtocolo))
-            {
-                return BadRequest(new { message = "Número de protocolo já existe" });
-            }
-
             var carga = new Carga
             {
                 NumeroProtocolo = numeroProtocolo,
@@ -200,11 +195,6 @@ public class CargasController : ControllerBase
 
             if (!string.Equals(cargaExistente.NumeroProtocolo, numeroProtocolo, StringComparison.OrdinalIgnoreCase))
             {
-                if (await _context.Cargas.AnyAsync(c => c.NumeroProtocolo == numeroProtocolo && c.Id != id))
-                {
-                    return BadRequest(new { message = "Número de protocolo já existe" });
-                }
-
                 cargaExistente.NumeroProtocolo = numeroProtocolo;
             }
 
