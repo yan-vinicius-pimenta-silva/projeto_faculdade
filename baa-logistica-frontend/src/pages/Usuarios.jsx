@@ -148,9 +148,17 @@ const Usuarios = () => {
       return;
     }
 
+    const rawUsuarioId = passwordModal.usuario?.id ?? passwordModal.usuario?.Id;
+    const usuarioId = Number(rawUsuarioId);
+
+    if (!Number.isInteger(usuarioId) || usuarioId <= 0) {
+      setPasswordModalError('Não foi possível identificar o usuário selecionado.');
+      return;
+    }
+
     try {
       setPasswordModalLoading(true);
-      await usuariosService.updatePassword(passwordModal.usuario.id, passwordModalData.novaSenha);
+      await usuariosService.updatePassword(usuarioId, passwordModalData.novaSenha);
       await carregarUsuarios();
 
       const nomeUsuario = passwordModal.usuario?.nome || 'usuário';
@@ -192,9 +200,17 @@ const Usuarios = () => {
       return;
     }
 
+    const rawUsuarioId = statusModal.usuario?.id ?? statusModal.usuario?.Id;
+    const usuarioId = Number(rawUsuarioId);
+
+    if (!Number.isInteger(usuarioId) || usuarioId <= 0) {
+      setStatusModalError('Não foi possível identificar o usuário selecionado.');
+      return;
+    }
+
     try {
       setStatusModalLoading(true);
-      await usuariosService.updateStatus(statusModal.usuario.id, statusModal.targetStatus);
+      await usuariosService.updateStatus(usuarioId, statusModal.targetStatus);
       await carregarUsuarios();
 
       const nomeUsuario = statusModal.usuario?.nome || 'usuário';
