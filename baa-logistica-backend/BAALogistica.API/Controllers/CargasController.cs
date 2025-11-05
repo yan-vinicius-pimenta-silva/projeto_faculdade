@@ -58,19 +58,13 @@ public class CargasController : ControllerBase
             var cargasDisponiveis = await _context.Cargas
                 .AsNoTracking()
                 .Include(c => c.Cliente)
-                .Where(c => !c.Viagens.Any(v =>
-                    v.Status != null &&
-                    !string.Equals(v.Status, "Concluída", StringComparison.OrdinalIgnoreCase) &&
-                    !string.Equals(v.Status, "Cancelada", StringComparison.OrdinalIgnoreCase)))
+                .Where(c => c.Status != null && c.Status.ToLower() == "aguardando")
                 .OrderByDescending(c => c.DataCadastro)
                 .Select(c => new
                 {
                     c.Id,
                     c.NumeroProtocolo,
                     c.DescricaoCarga,
-                    c.TipoCarga,
-                    c.CidadeColeta,
-                    c.CidadeEntrega,
                     c.Status,
                     Cliente = c.Cliente == null ? null : new
                     {

@@ -72,17 +72,9 @@ const Viagens = () => {
       let cargasData = [];
       try {
         cargasData = await cargasService.getDisponiveis();
-
-        if (!Array.isArray(cargasData) || cargasData.length === 0) {
-          cargasData = await cargasService.getAll();
-        }
       } catch (cargasError) {
         console.error('Erro ao carregar cargas disponíveis:', cargasError);
-        try {
-          cargasData = await cargasService.getAll();
-        } catch (fallbackError) {
-          console.error('Erro ao carregar cargas:', fallbackError);
-        }
+        cargasData = await cargasService.getAll({ status: 'Aguardando' });
       }
 
       setMotoristas(motoristasData);
