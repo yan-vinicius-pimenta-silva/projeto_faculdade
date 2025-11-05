@@ -103,11 +103,6 @@ public class ViagensController : ControllerBase
                 return BadRequest(new { message = "Motorista é obrigatório" });
             }
 
-            if (await _context.Viagens.AnyAsync(v => v.NumeroViagem == viagem.NumeroViagem))
-            {
-                return BadRequest(new { message = "Número de viagem já existe" });
-            }
-
             viagem.Id = 0;
             viagem.DataCadastro = DateTime.Now;
             viagem.DataAtualizacao = DateTime.Now;
