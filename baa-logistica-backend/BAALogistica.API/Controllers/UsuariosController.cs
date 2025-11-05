@@ -13,7 +13,7 @@ namespace BAALogistica.API.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("api/[controller]")]
+[Route("api/usuarios")]
 public class UsuariosController : ControllerBase
 {
     private static readonly string[] PerfisPermitidos = new[] { "Admin", "Usuario" };
