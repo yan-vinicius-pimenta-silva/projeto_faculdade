@@ -11,7 +11,7 @@ import Select from '../components/common/Select';
 import Modal from '../components/common/Modal';
 import StatusBadge from '../components/common/StatusBadge';
 import { motoristasService } from '../services/motoristasService';
-import { format, addDays, subYears } from 'date-fns';
+import { format } from 'date-fns';
 import {
   sanitizeNomeCompleto,
   sanitizeEndereco,
@@ -27,12 +27,7 @@ import {
   sanitizeDateInput
 } from '../utils/sanitization';
 import {
-  isValidCPF,
-  isValidCNH,
-  isValidTelefone,
-  hasMinimumAge,
-  isFutureDate,
-  isPastOrToday
+  isValidTelefone
 } from '../utils/validators';
 
 // ============================================
@@ -41,17 +36,11 @@ import {
 
 const limparCPF = (value) => sanitizeCPF(value);
 const formatarCPF = (value) => maskCPF(value);
-const validarCPF = (cpf) => {
-  const valido = isValidCPF(cpf);
-  return { valido, mensagem: valido ? '' : 'CPF inválido' };
-};
+const validarCPF = () => ({ valido: true, mensagem: '' });
 
 const limparCNH = (value) => sanitizeCNH(value);
 const formatarCNH = (value) => maskCNH(value);
-const validarCNH = (cnh) => {
-  const valido = isValidCNH(cnh);
-  return { valido, mensagem: valido ? '' : 'CNH inválida' };
-};
+const validarCNH = () => ({ valido: true, mensagem: '' });
 
 const limparTelefone = (value) => sanitizeTelefone(value);
 const formatarTelefone = (value) => maskTelefone(value);
@@ -127,8 +116,6 @@ const validarEmail = (email) => {
 
 const Motoristas = () => {
   const todayISO = format(new Date(), 'yyyy-MM-dd');
-  const tomorrowISO = format(addDays(new Date(), 1), 'yyyy-MM-dd');
-  const maxNascimentoISO = format(subYears(new Date(), 18), 'yyyy-MM-dd');
   const [motoristas, setMotoristas] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -391,8 +378,6 @@ const Motoristas = () => {
     // Valida validade CNH
     if (!formData.validadeCNH) {
       erros.validadeCNH = 'Validade da CNH é obrigatória';
-    } else if (!isFutureDate(formData.validadeCNH)) {
-      erros.validadeCNH = 'Validade da CNH deve ser uma data futura';
     }
 
     // Valida telefone (opcional, mas se preenchido deve ser válido)
@@ -408,18 +393,6 @@ const Motoristas = () => {
       const resultadoEmail = validarEmail(formData.email);
       if (!resultadoEmail.valido) {
         erros.email = resultadoEmail.mensagem;
-      }
-    }
-
-    if (formData.dataNascimento) {
-      if (!hasMinimumAge(formData.dataNascimento, 18)) {
-        erros.dataNascimento = 'Motorista deve ter no mínimo 18 anos';
-      }
-    }
-
-    if (formData.dataAdmissao) {
-      if (!isPastOrToday(formData.dataAdmissao)) {
-        erros.dataAdmissao = 'Data de admissão não pode ser futura';
       }
     }
 
@@ -675,7 +648,6 @@ const Motoristas = () => {
               type="date"
               value={formData.validadeCNH}
               onChange={handleInputChange}
-              min={tomorrowISO}
               required
               error={validationErrors.validadeCNH}
             />
@@ -715,7 +687,6 @@ const Motoristas = () => {
               type="date"
               value={formData.dataNascimento}
               onChange={handleInputChange}
-              max={maxNascimentoISO}
               error={validationErrors.dataNascimento}
             />
 
@@ -725,7 +696,6 @@ const Motoristas = () => {
               type="date"
               value={formData.dataAdmissao}
               onChange={handleInputChange}
-              max={todayISO}
               required
               error={validationErrors.dataAdmissao}
             />

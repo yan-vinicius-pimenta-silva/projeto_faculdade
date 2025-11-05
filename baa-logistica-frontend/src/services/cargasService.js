@@ -9,6 +9,11 @@ export const cargasService = {
     return response.data;
   },
 
+  getDisponiveis: async () => {
+    const response = await api.get('/cargas/disponiveis');
+    return response.data;
+  },
+
   getById: async (id) => {
     const response = await api.get(`/cargas/${id}`);
     return response.data;

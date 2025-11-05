@@ -78,18 +78,6 @@ public class ClientesController : ControllerBase
                 return BadRequest(new { message = "Razão social é obrigatória" });
             }
 
-            if (!string.IsNullOrEmpty(cliente.CNPJ) && 
-                await _context.Clientes.AnyAsync(c => c.CNPJ == cliente.CNPJ))
-            {
-                return BadRequest(new { message = "CNPJ já cadastrado" });
-            }
-
-            if (!string.IsNullOrEmpty(cliente.CPF) && 
-                await _context.Clientes.AnyAsync(c => c.CPF == cliente.CPF))
-            {
-                return BadRequest(new { message = "CPF já cadastrado" });
-            }
-
             cliente.Id = 0;
             cliente.DataCadastro = DateTime.Now;
             cliente.DataAtualizacao = DateTime.Now;
@@ -122,12 +110,6 @@ public class ClientesController : ControllerBase
             if (clienteExistente == null)
             {
                 return NotFound(new { message = "Cliente não encontrado" });
-            }
-
-            if (!string.IsNullOrEmpty(cliente.CNPJ) && 
-                await _context.Clientes.AnyAsync(c => c.CNPJ == cliente.CNPJ && c.Id != id))
-            {
-                return BadRequest(new { message = "CNPJ já cadastrado para outro cliente" });
             }
 
             clienteExistente.RazaoSocial = cliente.RazaoSocial;

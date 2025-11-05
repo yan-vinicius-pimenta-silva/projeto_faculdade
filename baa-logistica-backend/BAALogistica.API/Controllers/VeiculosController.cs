@@ -85,11 +85,6 @@ public class VeiculosController : ControllerBase
                 veiculo.Placa, veiculo.Modelo);
 
             // Validações básicas
-            if (string.IsNullOrWhiteSpace(veiculo.Placa))
-            {
-                return BadRequest(new { message = "Placa é obrigatória" });
-            }
-
             if (string.IsNullOrWhiteSpace(veiculo.Modelo))
             {
                 return BadRequest(new { message = "Modelo é obrigatório" });
@@ -113,12 +108,6 @@ public class VeiculosController : ControllerBase
             if (veiculo.CapacidadeCarga <= 0)
             {
                 return BadRequest(new { message = "Capacidade de carga deve ser maior que zero" });
-            }
-
-            // Validar placa única
-            if (await _context.Veiculos.AnyAsync(v => v.Placa == veiculo.Placa))
-            {
-                return BadRequest(new { message = "Placa já cadastrada" });
             }
 
             // Garantir que o Id seja 0 para novo registro
@@ -165,17 +154,6 @@ public class VeiculosController : ControllerBase
             }
 
             // Validações
-            if (string.IsNullOrWhiteSpace(veiculo.Placa))
-            {
-                return BadRequest(new { message = "Placa é obrigatória" });
-            }
-
-            // Validar placa única (exceto o próprio veículo)
-            if (await _context.Veiculos.AnyAsync(v => v.Placa == veiculo.Placa && v.Id != id))
-            {
-                return BadRequest(new { message = "Placa já cadastrada para outro veículo" });
-            }
-
             veiculoExistente.Placa = veiculo.Placa;
             veiculoExistente.Modelo = veiculo.Modelo;
             veiculoExistente.Marca = veiculo.Marca;

@@ -64,14 +64,30 @@ const Viagens = () => {
 
   const loadResources = async () => {
     try {
-      const [motoristasData, veiculosData, cargasData] = await Promise.all([
+      const [motoristasData, veiculosData] = await Promise.all([
         motoristasService.getDisponiveis(),
         veiculosService.getDisponiveis(),
-        cargasService.getAll({ status: 'Aguardando' }),
       ]);
+
+      let cargasData = [];
+      try {
+        cargasData = await cargasService.getDisponiveis();
+
+        if (!Array.isArray(cargasData) || cargasData.length === 0) {
+          cargasData = await cargasService.getAll();
+        }
+      } catch (cargasError) {
+        console.error('Erro ao carregar cargas disponíveis:', cargasError);
+        try {
+          cargasData = await cargasService.getAll();
+        } catch (fallbackError) {
+          console.error('Erro ao carregar cargas:', fallbackError);
+        }
+      }
+
       setMotoristas(motoristasData);
       setVeiculos(veiculosData);
-      setCargas(cargasData);
+      setCargas(Array.isArray(cargasData) ? cargasData : []);
     } catch (error) {
       console.error('Erro ao carregar recursos:', error);
     }
@@ -87,6 +103,7 @@ const Viagens = () => {
   };
 
   const handleOpenModal = (viagem = null) => {
+    loadResources();
     if (viagem) {
       setEditingViagem(viagem);
       setFormData({
@@ -95,6 +112,10 @@ const Viagens = () => {
         dataPrevisaoChegada: viagem.dataPrevisaoChegada ? format(new Date(viagem.dataPrevisaoChegada), 'yyyy-MM-dd\'T\'HH:mm') : '',
         dataChegadaReal: viagem.dataChegadaReal ? format(new Date(viagem.dataChegadaReal), 'yyyy-MM-dd\'T\'HH:mm') : '',
       });
+
+      if (viagem.carga && !cargas.some(c => c.id === viagem.carga.id)) {
+        setCargas(prev => [...prev, viagem.carga]);
+      }
     } else {
       setEditingViagem(null);
       setFormData({
