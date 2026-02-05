@@ -200,6 +200,7 @@ public class AuthController : ControllerBase
 
     private string GerarTokenJWT(Usuario usuario)
     {
+        //Verificar se o token está correto
         var jwtKey = _configuration["Jwt:Key"] ?? "ChaveSecretaSuperSegura123!@#MinhaAPIBAALogistica2024";
         var jwtIssuer = _configuration["Jwt:Issuer"] ?? "BAALogisticaAPI";
         var jwtAudience = _configuration["Jwt:Audience"] ?? "BAALogisticaApp";

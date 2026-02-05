@@ -16,7 +16,8 @@ Este é o **ponto de entrada** da aplicação, responsável por expor os endpoin
 
 ### **Estrutura de Pastas e Arquivos:**
 
-#### **📂 Controllers** 
+#### **📂 Controllers**
+
 Contém os controladores da API que definem os endpoints HTTP:
 
 - **AuthController.cs** - Autenticação (login, registro, alteração de senha)
@@ -28,6 +29,7 @@ Contém os controladores da API que definem os endpoints HTTP:
 - **ViagensController.cs** - Controle de viagens/rotas
 
 #### **📂 DTOs** (Data Transfer Objects)
+
 Objetos usados para transferir dados entre frontend e backend:
 
 - **AlterarSenhaRequest.cs** - Dados para alterar senha
@@ -35,9 +37,11 @@ Objetos usados para transferir dados entre frontend e backend:
 - **LoginResponse.cs** - Resposta do login (token JWT, dados do usuário)
 
 #### **📂 Properties**
+
 - **launchsettings.json** - Configurações de execução do projeto (portas, ambiente, etc.)
 
 #### **📂 bin / obj**
+
 Pastas de build do .NET (artefatos compilados e temporários)
 
 #### **📄 Arquivos de Configuração:**
@@ -103,7 +107,7 @@ Pelo que vejo nos Controllers, o sistema gerencia:
 ✅ **Veículos** - Gestão de frota  
 ✅ **Cargas** - Gerenciamento de mercadorias  
 ✅ **Viagens** - Controle de rotas e entregas  
-✅ **Dashboard** - Indicadores e métricas  
+✅ **Dashboard** - Indicadores e métricas
 
 ---
 
@@ -122,17 +126,17 @@ Pelo que vejo nos Controllers, o sistema gerencia:
 
 O arquivo `baalogistica.db` fica na raiz do projeto da API e é criado automaticamente na primeira execução graças ao `EnsureCreated()` configurado em `Program.cs`. O contexto `AppDbContext` mapeia cada entidade do domínio para uma tabela com validações e relacionamentos explícitos. A seguir, um panorama tabela a tabela:
 
-| Tabela | Finalidade | Campos-chave |
-|--------|------------|--------------|
-| `Usuarios` | Controla autenticação e perfis. Seed inicial cria o usuário `admin` com senha criptografada via BCrypt. | Índices únicos em `Login` e `Email` garantem unicidade; campos `Perfil`, `Ativo` e `DataUltimoAcesso` alimentam as regras de acesso. |
-| `Clientes` | Cadastro de embarcadores/contratantes. | Índices únicos para `CNPJ` e `CPF`; colunas de endereço e contato dão suporte ao front na coleta de dados completos. |
-| `Motoristas` | Registro da equipe de transporte. | Índices únicos em `CPF` e `CNH`, índice em `Status` para consultas rápidas por disponibilidade. |
-| `Veiculos` | Frota de caminhões/carretas. | Índice único em `Placa` e índice em `Status`. Campos `CapacidadeCarga` e `CapacidadeVolume` usam `decimal(10,2)` para precisão. |
-| `Cargas` | Ordens de transporte vinculadas a clientes. | Chave estrangeira obrigatória para `ClienteId` (delete restrito). Campos de datas, volume e endereço suportam toda a jornada da carga. |
-| `Viagens` | Programações de rota por carga. | FKs para `Carga`, `Veiculo` e `Motorista` (delete restrito) e índices que aceleram filtros por status. Guarda dados operacionais como quilometragens e previsão de chegada. |
-| `DespesasViagem` | Controle financeiro por viagem. | FK cascata com `Viagens`, registrando tipo, valor e data da despesa. |
-| `Manutencoes` | Histórico de manutenção da frota. | FK cascata com `Veiculos`, incluindo custo, quilometragem e próxima manutenção. |
-| `HistoricoStatusCargas` | Log de mudança de status das cargas. | FK cascata com `Cargas`, registra status anterior, novo e observações. |
+| Tabela                  | Finalidade                                                                                              | Campos-chave                                                                                                                                                                |
+| ----------------------- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Usuarios`              | Controla autenticação e perfis. Seed inicial cria o usuário `admin` com senha criptografada via BCrypt. | Índices únicos em `Login` e `Email` garantem unicidade; campos `Perfil`, `Ativo` e `DataUltimoAcesso` alimentam as regras de acesso.                                        |
+| `Clientes`              | Cadastro de embarcadores/contratantes.                                                                  | Índices únicos para `CNPJ` e `CPF`; colunas de endereço e contato dão suporte ao front na coleta de dados completos.                                                        |
+| `Motoristas`            | Registro da equipe de transporte.                                                                       | Índices únicos em `CPF` e `CNH`, índice em `Status` para consultas rápidas por disponibilidade.                                                                             |
+| `Veiculos`              | Frota de caminhões/carretas.                                                                            | Índice único em `Placa` e índice em `Status`. Campos `CapacidadeCarga` e `CapacidadeVolume` usam `decimal(10,2)` para precisão.                                             |
+| `Cargas`                | Ordens de transporte vinculadas a clientes.                                                             | Chave estrangeira obrigatória para `ClienteId` (delete restrito). Campos de datas, volume e endereço suportam toda a jornada da carga.                                      |
+| `Viagens`               | Programações de rota por carga.                                                                         | FKs para `Carga`, `Veiculo` e `Motorista` (delete restrito) e índices que aceleram filtros por status. Guarda dados operacionais como quilometragens e previsão de chegada. |
+| `DespesasViagem`        | Controle financeiro por viagem.                                                                         | FK cascata com `Viagens`, registrando tipo, valor e data da despesa.                                                                                                        |
+| `Manutencoes`           | Histórico de manutenção da frota.                                                                       | FK cascata com `Veiculos`, incluindo custo, quilometragem e próxima manutenção.                                                                                             |
+| `HistoricoStatusCargas` | Log de mudança de status das cargas.                                                                    | FK cascata com `Cargas`, registra status anterior, novo e observações.                                                                                                      |
 
 ### Relacionamentos principais
 
@@ -156,14 +160,14 @@ Essa semente usa `BCrypt` para armazenar a senha de forma segura, e datas em UTC
 ### Cuidados operacionais
 
 - **Criação automática:** `EnsureCreated` dispensa migrations em cenários de demonstração, mas em produção recomenda-se substituí-lo por `Database.Migrate()` para versionar o schema.
-- **WAL Mode:** o arquivo `baalogistica.db-wal` indica que o SQLite está usando *Write-Ahead Logging*, melhorando concorrência para múltiplas conexões simultâneas.
+- **WAL Mode:** o arquivo `baalogistica.db-wal` indica que o SQLite está usando _Write-Ahead Logging_, melhorando concorrência para múltiplas conexões simultâneas.
 - **Índices estratégicos:** consultas frequentes (por exemplo, filtros por status no dashboard) se beneficiam dos índices adicionados pelo EF Core (`HasIndex`), reduzindo latência em dispositivos modestos.
 
 ---
 
 ## 🔁 Fluxo de Requisições e Uso do Banco
 
-1. **Autenticação:** `AuthController` verifica o login consultando `Usuarios` e validando a senha com BCrypt. Em caso de sucesso, atualiza `DataUltimoAcesso` e emite um JWT com `Perfil` como claim de autorização.
+1. **Autenticação:** `AuthController` verifica o login consultando `Usuarios` e validando a senha com BCrypt. Caso seja bem sucedido, atualiza `DataUltimoAcesso` e emite um JWT com `Perfil` como claim de autorização.
 2. **CRUDs principais:** os controladores de `Clientes`, `Motoristas`, `Veiculos`, `Cargas` e `Viagens` usam diretamente o `AppDbContext` para consultar e persistir dados. As validações de unicidade do SQLite retornam erros tratáveis no backend (por exemplo, tentativa de cadastrar CPF duplicado).
 3. **Dashboard:** o `DashboardController` agrega dados com `GroupBy` e projeções Linq, fazendo uso dos índices de status para relatórios ágeis.
 4. **Históricos:** alterações de status de carga ou de viagens geram registros auxiliares (`HistoricoStatusCargas`, `DespesasViagem`) garantindo rastreabilidade operacional e financeira.
@@ -171,5 +175,3 @@ Essa semente usa `BCrypt` para armazenar a senha de forma segura, e datas em UTC
 Por ser um banco embarcado, todas as operações ocorrem em um único arquivo, o que facilita deploy em ambientes simples (ex.: demonstrações em laboratório). Contudo, a modelagem já está pronta para ser migrada para SQL Server ou PostgreSQL alterando apenas a connection string e o provider EF Core.
 
 ---
-
-
